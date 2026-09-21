@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rajput Events
 
-## Getting Started
+Professional event management website for **Rajput Events** — weddings and corporate occasions, beautifully orchestrated.
 
-First, run the development server:
+**Tagline:** Every Occasion, Beautifully Orchestrated.
+
+## Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Nodemailer (Gmail SMTP contact form)
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env` and fill in your Gmail App Password:
 
-## Learn More
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=rajputevents04@gmail.com
+SMTP_PASS=your-gmail-app-password
+CONTACT_TO=rajputevents04@gmail.com
+CONTACT_FROM_NAME=Rajput Events Website
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Gmail App Password
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Enable 2-Step Verification on the Google Account.
+2. Go to Google Account → Security → App passwords.
+3. Create an app password for “Mail”.
+4. Paste it into `SMTP_PASS` in `.env`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Brand
 
-## Deploy on Vercel
+| Colour | Hex | Usage |
+| --- | --- | --- |
+| Midnight Navy | `#0B1736` | Main backgrounds |
+| Champagne Gold | `#C9A45C` | Logo, borders, highlights |
+| Warm Ivory | `#F7F3EA` | Light sections |
+| Charcoal | `#252833` | Body text on light |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Fonts:** Cinzel (headings), Montserrat (body), Cormorant Garamond (accent).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Contact:** rajputevents04@gmail.com · @rajputevents · rajputevents.com
