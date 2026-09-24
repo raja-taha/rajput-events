@@ -1,0 +1,194 @@
+import type { ResourceKey } from "./resource-config";
+import { RESOURCE_META } from "./resource-config";
+import {
+  bookingStages,
+  enquiryStages,
+  eventTypes,
+  packageLevels,
+  quoteStatuses,
+  serviceStatuses,
+  taskPriorities,
+  taskStatuses,
+  vendorStatuses,
+} from "@/models/enums";
+
+export type FieldDef = {
+  name: string;
+  label: string;
+  type?: "text" | "email" | "number" | "date" | "textarea" | "select";
+  required?: boolean;
+  options?: readonly string[];
+};
+
+export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
+  customers: [
+    { name: "fullName", label: "Full name", required: true },
+    { name: "mobileWhatsApp", label: "Mobile / WhatsApp" },
+    { name: "email", label: "Email", type: "email" },
+    { name: "billingAddress", label: "Billing address", type: "textarea" },
+    { name: "cityArea", label: "City / area" },
+    { name: "decisionMaker", label: "Decision maker" },
+    { name: "backupContact", label: "Backup contact" },
+    { name: "notes", label: "Notes", type: "textarea" },
+  ],
+  enquiries: [
+    { name: "customerId", label: "Customer ID", required: true },
+    { name: "eventType", label: "Event type", type: "select", options: eventTypes },
+    { name: "occasionTitle", label: "Occasion title" },
+    { name: "preferredDate", label: "Preferred date", type: "date" },
+    { name: "expectedGuests", label: "Expected guests", type: "number" },
+    { name: "venueStatusOrName", label: "Venue" },
+    { name: "targetBudget", label: "Target budget", type: "number" },
+    { name: "packageLevel", label: "Package", type: "select", options: packageLevels },
+    { name: "stage", label: "Stage", type: "select", options: enquiryStages },
+    { name: "conversationNotes", label: "Notes", type: "textarea" },
+  ],
+  "event-briefs": [
+    { name: "enquiryId", label: "Enquiry ID" },
+    { name: "eventId", label: "Event ID" },
+    { name: "themeVision", label: "Theme / vision", type: "textarea" },
+    { name: "colours", label: "Colours" },
+    { name: "mustHaveElements", label: "Must-haves", type: "textarea" },
+    { name: "elementsToAvoid", label: "Exclusions", type: "textarea" },
+    { name: "foodDietaryNeeds", label: "Dietary needs", type: "textarea" },
+    { name: "notes", label: "Notes", type: "textarea" },
+  ],
+  quotes: [
+    { name: "customerId", label: "Customer ID" },
+    { name: "enquiryId", label: "Enquiry ID" },
+    { name: "issueDate", label: "Issue date", type: "date" },
+    { name: "validUntil", label: "Valid until", type: "date" },
+    { name: "status", label: "Status", type: "select", options: quoteStatuses },
+    { name: "discount", label: "Discount", type: "number" },
+    { name: "taxAmount", label: "Tax amount", type: "number" },
+    { name: "bookingAdvancePercent", label: "Advance %", type: "number" },
+    { name: "scopeAndExclusions", label: "Scope & exclusions", type: "textarea" },
+  ],
+  services: [
+    { name: "servicePackageName", label: "Package name", required: true },
+    { name: "categoryLevel", label: "Category / level" },
+    { name: "pricingUnit", label: "Pricing unit" },
+    { name: "status", label: "Status", type: "select", options: serviceStatuses },
+    { name: "includedScope", label: "Included scope", type: "textarea" },
+    { name: "excludedOptionalItems", label: "Excluded items", type: "textarea" },
+    { name: "pricingNotes", label: "Pricing notes", type: "textarea" },
+  ],
+  bookings: [
+    { name: "customerId", label: "Customer ID" },
+    { name: "enquiryId", label: "Enquiry ID" },
+    { name: "eventTitle", label: "Event title", required: true },
+    { name: "eventType", label: "Event type", type: "select", options: eventTypes },
+    { name: "eventDate", label: "Event date", type: "date" },
+    { name: "guestCount", label: "Guests", type: "number" },
+    { name: "venueId", label: "Venue ID" },
+    { name: "acceptedQuoteId", label: "Accepted quote ID" },
+    { name: "stage", label: "Stage", type: "select", options: bookingStages },
+    { name: "notes", label: "Notes", type: "textarea" },
+  ],
+  tasks: [
+    { name: "eventId", label: "Event ID" },
+    { name: "phase", label: "Phase" },
+    { name: "taskActivityCue", label: "Task", required: true, type: "textarea" },
+    { name: "responsiblePerson", label: "Owner" },
+    { name: "dueStartAt", label: "Due / start", type: "date" },
+    { name: "status", label: "Status", type: "select", options: taskStatuses },
+    { name: "priority", label: "Priority", type: "select", options: taskPriorities },
+  ],
+  changes: [
+    { name: "eventId", label: "Event ID", required: true },
+    { name: "requestedChange", label: "Requested change", type: "textarea", required: true },
+    { name: "feeChangeExclTax", label: "Fee change (excl. tax)", type: "number" },
+    { name: "implementationStatus", label: "Implementation status" },
+  ],
+  feedback: [
+    { name: "eventId", label: "Event ID" },
+    { name: "overallRating", label: "Rating (1-5)", type: "number" },
+    { name: "whatWorkedWell", label: "What worked well", type: "textarea" },
+    { name: "whatToImproveOpenIssues", label: "Improvements / issues", type: "textarea" },
+    { name: "mediaConsent", label: "Media consent" },
+  ],
+  vendors: [
+    { name: "businessName", label: "Business name", required: true },
+    { name: "category", label: "Category" },
+    { name: "authorizedContact", label: "Contact" },
+    { name: "mobileWhatsApp", label: "Mobile / WhatsApp" },
+    { name: "email", label: "Email", type: "email" },
+    { name: "vendorStatus", label: "Status", type: "select", options: vendorStatuses },
+    { name: "notesIssues", label: "Notes", type: "textarea" },
+  ],
+  "vendor-orders": [
+    { name: "eventId", label: "Event ID", required: true },
+    { name: "vendorId", label: "Vendor ID", required: true },
+    { name: "orderDate", label: "Order date", type: "date" },
+    { name: "status", label: "Status" },
+    { name: "totalAmount", label: "Total", type: "number" },
+  ],
+  venues: [
+    { name: "venueName", label: "Venue name", required: true },
+    { name: "areaCity", label: "Area / city" },
+    { name: "venueManager", label: "Manager" },
+    { name: "managerMobile", label: "Manager mobile" },
+    { name: "guestCapacity", label: "Capacity", type: "number" },
+    { name: "notes", label: "Notes", type: "textarea" },
+  ],
+  inventory: [
+    { name: "itemAssetName", label: "Item name", required: true },
+    { name: "category", label: "Category" },
+    { name: "quantityHeld", label: "Qty held", type: "number" },
+    { name: "currentCondition", label: "Condition" },
+    { name: "storageLocation", label: "Storage" },
+  ],
+  handovers: [
+    { name: "eventId", label: "Event ID", required: true },
+    { name: "itemId", label: "Item ID" },
+    { name: "handoverType", label: "Type" },
+    { name: "conditionOut", label: "Condition out" },
+    { name: "conditionIn", label: "Condition in" },
+  ],
+  invoices: [
+    { name: "eventId", label: "Event ID", required: true },
+    { name: "milestone", label: "Milestone" },
+    { name: "issueDate", label: "Issue date", type: "date" },
+    { name: "dueDate", label: "Due date", type: "date" },
+    { name: "status", label: "Status" },
+    { name: "amountBilledInclTax", label: "Amount incl. tax", type: "number" },
+  ],
+  payments: [
+    { name: "eventId", label: "Event ID" },
+    { name: "transactionDate", label: "Date", type: "date" },
+    { name: "transactionType", label: "Type" },
+    { name: "payerPayee", label: "Payer / payee" },
+    { name: "method", label: "Method" },
+    { name: "amount", label: "Amount", type: "number", required: true },
+    { name: "clearance", label: "Clearance" },
+  ],
+  expenses: [
+    { name: "eventId", label: "Event ID" },
+    { name: "recordedOn", label: "Recorded on", type: "date" },
+    { name: "description", label: "Description", required: true },
+    { name: "actualAgreedCost", label: "Actual cost", type: "number" },
+    { name: "category", label: "Category" },
+  ],
+  documents: [
+    { name: "documentCheck", label: "Document / check", required: true },
+    { name: "scope", label: "Scope" },
+    { name: "eventId", label: "Event ID" },
+    { name: "status", label: "Status" },
+    { name: "responsiblePerson", label: "Responsible" },
+    { name: "notesTemplateFilename", label: "Notes / filename", type: "textarea" },
+  ],
+  marketing: [
+    { name: "platform", label: "Platform" },
+    { name: "contentType", label: "Content type" },
+    { name: "postTopicCaption", label: "Caption / topic", type: "textarea" },
+    { name: "status", label: "Status" },
+    { name: "plannedPublishDate", label: "Planned date", type: "date" },
+  ],
+};
+
+export const RESOURCE_LABELS = Object.fromEntries(
+  Object.values(RESOURCE_META).map((m) => [
+    m.key,
+    { title: m.title, singular: m.singular, adminPath: m.adminPath },
+  ]),
+) as Record<ResourceKey, { title: string; singular: string; adminPath: string }>;

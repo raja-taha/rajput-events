@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Cinzel, Montserrat, Cormorant_Garamond } from "next/font/google";
+import { Cinzel, Montserrat, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -22,6 +20,13 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-admin",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -66,12 +71,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${montserrat.variable} ${cormorant.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${cinzel.variable} ${montserrat.variable} ${cormorant.variable} ${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-navy text-ivory font-[family-name:var(--font-body)]">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

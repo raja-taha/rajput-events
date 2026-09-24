@@ -174,3 +174,183 @@ body {
 .input-field-dark::placeholder {
   color: color-mix(in srgb, var(--ivory) 45%, transparent);
 }
+
+/* ——— Admin dashboard theme (white / light blue + dark mode) ——— */
+.admin-root {
+  --admin-bg: #f3f7fc;
+  --admin-surface: #ffffff;
+  --admin-surface-2: #eef4fb;
+  --admin-border: #d7e3f2;
+  --admin-text: #0f2744;
+  --admin-muted: #5b7391;
+  --admin-primary: #2b6cb0;
+  --admin-primary-soft: #dbeafe;
+  --admin-primary-strong: #1e4e8c;
+  --admin-accent: #38bdf8;
+  --admin-sidebar: #0f2744;
+  --admin-sidebar-text: #dbe7f5;
+  --admin-sidebar-muted: #8aa0bc;
+  --admin-sidebar-active: #38bdf8;
+  --admin-danger: #b42318;
+  --admin-success: #15803d;
+  --admin-warning: #b45309;
+  --admin-shadow: 0 10px 30px rgba(15, 39, 68, 0.06);
+  font-family: var(--font-admin), system-ui, sans-serif;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  min-height: 100vh;
+}
+
+html[data-admin-theme="dark"] .admin-root {
+  --admin-bg: #0b1524;
+  --admin-surface: #122033;
+  --admin-surface-2: #182941;
+  --admin-border: #24384f;
+  --admin-text: #e8f1fb;
+  --admin-muted: #93a9c3;
+  --admin-primary: #60a5fa;
+  --admin-primary-soft: #1e3a5f;
+  --admin-primary-strong: #93c5fd;
+  --admin-accent: #38bdf8;
+  --admin-sidebar: #08111d;
+  --admin-sidebar-text: #d7e6f7;
+  --admin-sidebar-muted: #7f96b3;
+  --admin-sidebar-active: #38bdf8;
+  --admin-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-input {
+  width: 100%;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.925rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-input:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent);
+}
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.admin-btn-primary {
+  background: var(--admin-primary);
+  color: white;
+}
+
+.admin-btn-primary:hover {
+  background: var(--admin-primary-strong);
+}
+
+.admin-btn-ghost {
+  background: transparent;
+  color: var(--admin-muted);
+  border: 1px solid var(--admin-border);
+}
+
+.admin-btn-ghost:hover {
+  background: var(--admin-surface-2);
+  color: var(--admin-text);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+  font-weight: 600;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-surface-2);
+}
+
+.admin-table td {
+  padding: 0.85rem 0.9rem;
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background: color-mix(in srgb, var(--admin-primary-soft) 45%, transparent);
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.admin-badge-green {
+  background: #dcfce7;
+  color: #166534;
+}
+.admin-badge-amber {
+  background: #ffedd5;
+  color: #9a3412;
+}
+.admin-badge-red {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.admin-badge-gray {
+  background: #e5e7eb;
+  color: #374151;
+}
+.admin-badge-blue {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+html[data-admin-theme="dark"] .admin-badge-green {
+  background: #14532d;
+  color: #bbf7d0;
+}
+html[data-admin-theme="dark"] .admin-badge-amber {
+  background: #7c2d12;
+  color: #fed7aa;
+}
+html[data-admin-theme="dark"] .admin-badge-red {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+html[data-admin-theme="dark"] .admin-badge-gray {
+  background: #374151;
+  color: #e5e7eb;
+}
+html[data-admin-theme="dark"] .admin-badge-blue {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
