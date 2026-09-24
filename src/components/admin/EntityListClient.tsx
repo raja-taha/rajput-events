@@ -6,11 +6,12 @@ import { PageHeader } from "./PageHeader";
 import { ResourceTable, type TableColumn } from "./ResourceTable";
 import { StatusBadge } from "./StatusBadge";
 import { EntityFormModal } from "./EntityFormModal";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { MoneyText } from "./MoneyText";
-import { fetchList, updateOne } from "@/lib/admin/client-api";
+import { fetchList, updateOne, archiveOne } from "@/lib/admin/client-api";
 import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
-import { customerStatuses, enquiryStages, quoteStatuses } from "@/models/enums";
+import { customerStatuses, enquiryStages, quoteStatuses, bookingStages, changeImplementationStatuses } from "@/models/enums";
 import { formatDate } from "@/lib/admin/dates";
 import { useAdminPreferences } from "./AdminPreferencesProvider";
 
@@ -42,6 +43,8 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const openedFromQuery = useRef<string | null>(null);
   const loadRequestId = useRef(0);
@@ -52,6 +55,10 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const isEnquiries = resourceKey === "enquiries";
   const isQuotes = resourceKey === "quotes";
   const isVenues = resourceKey === "venues";
+  const isBookings = resourceKey === "bookings";
+  const isEventBriefs = resourceKey === "event-briefs";
+  const isChanges = resourceKey === "changes";
+  const isFeedback = resourceKey === "feedback";
 
   useEffect(() => {
     if (!newParam && !editParam) {
@@ -367,6 +374,299 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       return cols;
     }
 
+    if (isBookings) {
+      cols.push(
+        {
+          key: "col-customer",
+          header: "Customer",
+          render: (row) => {
+            const name = String(row.customerName || "");
+            const cid = String(row.customerId || "");
+            return (
+              <div className="min-w-0">
+                <div className="truncate text-xs font-medium">
+                  {name || "—"}
+                </div>
+                {cid ? (
+                  <div className="font-mono text-[10px] text-[var(--admin-muted)]">
+                    {cid}
+                  </div>
+                ) : null}
+              </div>
+            );
+          },
+        },
+        {
+          key: "col-title",
+          header: "Event title",
+          render: (row) => {
+            const text = String(row.eventTitle || "—");
+            return (
+              <span className="text-xs" title={text}>
+                {text.length > 36 ? `${text.slice(0, 36)}…` : text}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-type",
+          header: "Type",
+          render: (row) => (
+            <span className="text-xs">{String(row.eventType || "—")}</span>
+          ),
+        },
+        {
+          key: "col-date",
+          header: "Date",
+          render: (row) => (
+            <span className="text-xs tabular-nums">
+              {formatDate(
+                (row.eventDate as string | Date | null | undefined) ?? null,
+              )}
+            </span>
+          ),
+        },
+        {
+          key: "col-guests",
+          header: "Guests",
+          render: (row) => {
+            const n = row.guestCount;
+            return (
+              <span className="text-xs tabular-nums">
+                {n == null || n === "" ? "—" : String(n)}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-venue",
+          header: "Venue",
+          render: (row) => (
+            <span className="text-xs">{String(row.venueName || "—")}</span>
+          ),
+        },
+        {
+          key: "col-quoted",
+          header: "Quoted",
+          render: (row) => {
+            const amount = row.quotedAmount;
+            if (amount == null || amount === "") {
+              return (
+                <span className="text-xs text-[var(--admin-muted)]">—</span>
+              );
+            }
+            return (
+              <MoneyText
+                amount={Number(amount)}
+                className="text-xs tabular-nums"
+              />
+            );
+          },
+        },
+        {
+          key: "col-stage",
+          header: "Stage",
+          render: (row) => {
+            const id = String(row[idField] || "");
+            const value = String(row.stage || "Tentative");
+            return (
+              <select
+                className="admin-input !w-auto min-w-[7.5rem] !py-1 text-[11px]"
+                value={value}
+                disabled={statusSavingId === id}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  void onInlineFieldChange(row, "stage", e.target.value)
+                }
+              >
+                {bookingStages.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            );
+          },
+        },
+      );
+      return cols;
+    }
+
+    if (isChanges) {
+      cols.push(
+        {
+          key: "col-event",
+          header: "Event",
+          render: (row) => {
+            const name = String(row.eventName || "");
+            const eid = String(row.eventId || "");
+            return (
+              <div className="min-w-0">
+                <div className="truncate text-xs font-medium">
+                  {name || "—"}
+                </div>
+                {eid ? (
+                  <div className="font-mono text-[10px] text-[var(--admin-muted)]">
+                    {eid}
+                  </div>
+                ) : null}
+              </div>
+            );
+          },
+        },
+        {
+          key: "col-requested",
+          header: "Requested change",
+          render: (row) => {
+            const text = String(row.requestedChange || "—");
+            return (
+              <span className="text-xs" title={text}>
+                {text.length > 48 ? `${text.slice(0, 48)}…` : text}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-fee",
+          header: "Fee",
+          render: (row) => {
+            const amount = row.feeChangeExclTax;
+            if (amount == null || amount === "") {
+              return (
+                <span className="text-xs text-[var(--admin-muted)]">—</span>
+              );
+            }
+            return (
+              <MoneyText
+                amount={Number(amount)}
+                className="text-xs tabular-nums"
+              />
+            );
+          },
+        },
+        {
+          key: "col-status",
+          header: "Status",
+          render: (row) => {
+            const id = String(row[idField] || "");
+            const value = String(row.implementationStatus || "Pending");
+            return (
+              <select
+                className="admin-input !w-auto min-w-[7.5rem] !py-1 text-[11px]"
+                value={value}
+                disabled={statusSavingId === id}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  void onInlineFieldChange(
+                    row,
+                    "implementationStatus",
+                    e.target.value,
+                  )
+                }
+              >
+                {changeImplementationStatuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            );
+          },
+        },
+      );
+      return cols;
+    }
+
+    if (isFeedback) {
+      cols.push(
+        {
+          key: "col-event",
+          header: "Event",
+          render: (row) => {
+            const name = String(row.eventName || "");
+            const eid = String(row.eventId || "");
+            return (
+              <div className="min-w-0">
+                <div className="truncate text-xs font-medium">
+                  {name || "—"}
+                </div>
+                {eid ? (
+                  <div className="font-mono text-[10px] text-[var(--admin-muted)]">
+                    {eid}
+                  </div>
+                ) : null}
+              </div>
+            );
+          },
+        },
+        {
+          key: "col-rating",
+          header: "Rating",
+          render: (row) => {
+            const n = row.overallRating;
+            return (
+              <span className="text-xs tabular-nums">
+                {n == null || n === "" ? "—" : `${n}/5`}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-media",
+          header: "Media consent",
+          render: (row) => (
+            <span className="text-xs">{String(row.mediaConsent || "—")}</span>
+          ),
+        },
+      );
+      return cols;
+    }
+
+    if (isEventBriefs) {
+      cols.push(
+        {
+          key: "col-event",
+          header: "Event",
+          render: (row) => {
+            const name = String(row.eventName || "");
+            const eid = String(row.eventId || "");
+            return (
+              <div className="min-w-0">
+                <div className="truncate text-xs font-medium">
+                  {name || "—"}
+                </div>
+                {eid ? (
+                  <div className="font-mono text-[10px] text-[var(--admin-muted)]">
+                    {eid}
+                  </div>
+                ) : null}
+              </div>
+            );
+          },
+        },
+        {
+          key: "col-theme",
+          header: "Theme",
+          render: (row) => {
+            const text = String(row.themeVision || "—");
+            return (
+              <span className="text-xs" title={text}>
+                {text.length > 48 ? `${text.slice(0, 48)}…` : text}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-colours",
+          header: "Colours",
+          render: (row) => (
+            <span className="text-xs">{String(row.colours || "—")}</span>
+          ),
+        },
+      );
+      return cols;
+    }
+
     if (isVenues) {
       cols.push(
         {
@@ -457,6 +757,10 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     isEnquiries,
     isQuotes,
     isVenues,
+    isBookings,
+    isEventBriefs,
+    isChanges,
+    isFeedback,
     statusSavingId,
     onInlineFieldChange,
   ]);
@@ -482,6 +786,25 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     setModalOpen(true);
   }
 
+  function requestDelete(row: Row) {
+    const id = String(row[idField] || "");
+    if (id) setDeleteId(id);
+  }
+
+  async function confirmDelete() {
+    if (!deleteId) return;
+    setDeleting(true);
+    try {
+      await archiveOne(resourceKey, deleteId);
+      setDeleteId(null);
+      await load();
+    } catch {
+      // toast handled in client-api
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -495,6 +818,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         rows={rows}
         rowKey={(row) => String(row[idField] || row._id || "")}
         onRowOpen={openEdit}
+        onRowDelete={requestDelete}
         loading={loading}
         page={page}
         pageSize={tablePageSize}
@@ -510,6 +834,19 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         businessId={editId}
         onClose={() => setModalOpen(false)}
         onSaved={() => void load()}
+      />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title={`Delete ${meta.singular.toLowerCase()}?`}
+        message="This record will be archived (soft delete)."
+        confirmLabel={deleting ? "Deleting…" : "Delete"}
+        destructive
+        onConfirm={() => {
+          if (!deleting) void confirmDelete();
+        }}
+        onCancel={() => {
+          if (!deleting) setDeleteId(null);
+        }}
       />
     </>
   );

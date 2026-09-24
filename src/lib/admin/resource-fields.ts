@@ -12,6 +12,8 @@ import {
   taskStatuses,
   vendorStatuses,
   VENUE_SETTING,
+  CHANGE_IMPLEMENTATION_STATUS,
+  MEDIA_CONSENT,
 } from "@/models/enums";
 
 export type FieldDef = {
@@ -129,14 +131,25 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     },
     { name: "requestedChange", label: "Requested change", type: "textarea", required: true },
     { name: "feeChangeExclTax", label: "Fee change (excl. tax)", type: "number" },
-    { name: "implementationStatus", label: "Implementation status" },
+    {
+      name: "implementationStatus",
+      label: "Status",
+      type: "select",
+      options: CHANGE_IMPLEMENTATION_STATUS,
+      required: true,
+    },
   ],
   feedback: [
     { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "overallRating", label: "Rating (1-5)", type: "number" },
     { name: "whatWorkedWell", label: "What worked well", type: "textarea" },
     { name: "whatToImproveOpenIssues", label: "Improvements / issues", type: "textarea" },
-    { name: "mediaConsent", label: "Media consent" },
+    {
+      name: "mediaConsent",
+      label: "Media consent",
+      type: "select",
+      options: MEDIA_CONSENT,
+    },
   ],
   vendors: [
     { name: "businessName", label: "Business name", required: true },

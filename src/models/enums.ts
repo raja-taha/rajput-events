@@ -303,10 +303,9 @@ export const BUDGET_INCLUDES_VENUE_FOOD = [
 export const TASK_SCOPE = ["BUSINESS", "EVENT", "TEMPLATE"] as const;
 
 export const CHANGE_IMPLEMENTATION_STATUS = [
-  "Not started",
-  "In progress",
-  "Done",
-  "Not applicable",
+  "Pending",
+  "Declined",
+  "Fulfilled",
 ] as const;
 
 export const FEEDBACK_COMPLETION_SIGNED = YES_NO_PENDING_NA;
@@ -354,6 +353,7 @@ export const expenseCategories = EXPENSE_CATEGORY;
 export const expenseApprovals = EXPENSE_APPROVAL;
 export const changeCategories = CHANGE_CATEGORY;
 export const changeDecisions = CHANGE_DECISION;
+export const changeImplementationStatuses = CHANGE_IMPLEMENTATION_STATUS;
 export const serviceStatuses = SERVICE_STATUS;
 export const taskPhases = TASK_PHASE;
 export const taskStatuses = TASK_STATUS;

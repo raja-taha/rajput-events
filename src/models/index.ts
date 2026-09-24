@@ -12,7 +12,7 @@ export { VendorOrder } from "./VendorOrder";
 export { Invoice } from "./Invoice";
 export { Payment } from "./Payment";
 export { Expense } from "./Expense";
-export { Change } from "./Change";
+export { Change, getChangeModel } from "./Change";
 export { Service } from "./Service";
 export { Task } from "./Task";
 export { InventoryItem } from "./InventoryItem";

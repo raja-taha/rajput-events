@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 
 export type TableColumn<T> = {
   key: string;
@@ -14,6 +15,7 @@ type Props<T extends { [k: string]: unknown }> = {
   rows: T[];
   rowKey: (row: T) => string;
   onRowOpen: (row: T) => void;
+  onRowDelete?: (row: T) => void;
   loading?: boolean;
   page: number;
   pageSize: number;
@@ -46,6 +48,7 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
   rows,
   rowKey,
   onRowOpen,
+  onRowDelete,
   loading,
   page,
   pageSize,
@@ -97,7 +100,7 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
                   {col.header}
                 </th>
               ))}
-              <th className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--admin-muted)]">
+              <th className="w-[1%] whitespace-nowrap py-1.5 pl-2.5 pr-5 text-[10px] font-semibold uppercase tracking-wide text-[var(--admin-muted)]">
                 Actions
               </th>
             </tr>
@@ -132,14 +135,29 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
                           : String(row[col.key] ?? "—")}
                       </td>
                     ))}
-                    <td className="px-2.5 py-1.5">
-                      <button
-                        type="button"
-                        onClick={() => onRowOpen(row)}
-                        className="text-[11px] font-semibold text-[var(--admin-primary)] hover:underline"
-                      >
-                        Edit
-                      </button>
+                    <td className="py-1.5 pl-2.5 pr-5 align-middle">
+                      <div className="inline-flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => onRowOpen(row)}
+                          className="rounded p-1.5 text-[var(--admin-primary)] hover:bg-[var(--admin-surface-2)]"
+                          aria-label="Edit"
+                          title="Edit"
+                        >
+                          <Pencil size={14} strokeWidth={2} />
+                        </button>
+                        {onRowDelete ? (
+                          <button
+                            type="button"
+                            onClick={() => onRowDelete(row)}
+                            className="rounded p-1.5 text-[var(--admin-danger)] hover:bg-[var(--admin-surface-2)]"
+                            aria-label="Delete"
+                            title="Delete"
+                          >
+                            <Trash2 size={14} strokeWidth={2} />
+                          </button>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 );

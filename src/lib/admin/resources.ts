@@ -1,4 +1,5 @@
 import "server-only";
+import mongoose from "mongoose";
 import {
   Booking,
   Change,
@@ -20,6 +21,7 @@ import {
   VendorOrder,
   Venue,
 } from "@/models";
+import { getChangeModel } from "@/models/Change";
 import type { ResourceDef } from "./crud";
 import type { ResourceKey } from "./resource-config";
 
@@ -75,7 +77,14 @@ const RESOURCE_MAP: Record<ResourceKey, ResourceDef> = {
     model: Booking as ResourceDef["model"],
     businessIdField: "eventId",
     idKey: "event",
-    searchFields: ["eventId", "eventTitle", "customerId", "stage"],
+    searchFields: [
+      "eventId",
+      "eventTitle",
+      "customerId",
+      "eventType",
+      "stage",
+      "venueId",
+    ],
     labelField: "eventTitle",
     createDefaults: { stage: "Tentative" },
   },
@@ -93,15 +102,21 @@ const RESOURCE_MAP: Record<ResourceKey, ResourceDef> = {
     model: Change as ResourceDef["model"],
     businessIdField: "changeId",
     idKey: "change",
-    searchFields: ["changeId", "eventId", "status"],
+    searchFields: [
+      "changeId",
+      "eventId",
+      "requestedChange",
+      "implementationStatus",
+    ],
     labelField: "changeId",
+    createDefaults: { implementationStatus: "Pending" },
   },
   feedback: {
     resource: "feedback",
     model: Feedback as ResourceDef["model"],
     businessIdField: "feedbackId",
     idKey: "feedback",
-    searchFields: ["feedbackId", "eventId", "customerId"],
+    searchFields: ["feedbackId", "eventId", "mediaConsent"],
     labelField: "feedbackId",
   },
   vendors: {
@@ -199,5 +214,20 @@ const RESOURCE_MAP: Record<ResourceKey, ResourceDef> = {
 };
 
 export function getResourceDef(key: string): ResourceDef | undefined {
-  return RESOURCE_MAP[key as ResourceKey];
+  const base = RESOURCE_MAP[key as ResourceKey];
+  if (!base) return undefined;
+
+  // Prefer the live mongoose model so HMR schema/enum updates are picked up.
+  if (key === "changes") {
+    return {
+      ...base,
+      model: getChangeModel() as ResourceDef["model"],
+    };
+  }
+
+  const live = mongoose.models[base.model.modelName];
+  if (live && live !== base.model) {
+    return { ...base, model: live as ResourceDef["model"] };
+  }
+  return base;
 }
