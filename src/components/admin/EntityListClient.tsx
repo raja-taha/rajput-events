@@ -9,7 +9,7 @@ import { EntityFormModal } from "./EntityFormModal";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { MoneyText } from "./MoneyText";
 import { RelationLink } from "./RelationLink";
-import { fetchList, updateOne, archiveOne } from "@/lib/admin/client-api";
+import { fetchList, updateOne, archiveOne, unarchiveOne } from "@/lib/admin/client-api";
 import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
 import { adminResourceHref, hasDetailPage } from "@/lib/admin/detail-pages";
@@ -18,6 +18,18 @@ import { formatDate } from "@/lib/admin/dates";
 import { useAdminPreferences } from "./AdminPreferencesProvider";
 
 type Row = Record<string, unknown>;
+
+function isArchivedRow(row: Row): boolean {
+  const value = row.archivedAt;
+  if (value == null || value === false || value === "") return false;
+  if (value instanceof Date) return !Number.isNaN(value.getTime());
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === "null" || trimmed === "undefined") return false;
+    return Number.isFinite(Date.parse(trimmed));
+  }
+  return false;
+}
 
 const STATUS_FIELDS = [
   "stage",
@@ -33,7 +45,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const meta = RESOURCE_LABELS[resourceKey];
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { tablePageSize } = useAdminPreferences();
+  const { tablePageSize, showArchived } = useAdminPreferences();
   const page = Math.max(1, Number(searchParams.get("page") || 1));
   const search = searchParams.get("search") || "";
   const editParam = searchParams.get("edit");
@@ -46,7 +58,9 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [unarchiveId, setUnarchiveId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [unarchiving, setUnarchiving] = useState(false);
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const openedFromQuery = useRef<string | null>(null);
   const loadRequestId = useRef(0);
@@ -96,6 +110,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         pageSize: tablePageSize,
         search,
         sort: `${idField}:asc`,
+        archived: showArchived,
       });
       if (requestId !== loadRequestId.current) return;
       setRows(res.data);
@@ -109,7 +124,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     } finally {
       if (requestId === loadRequestId.current) setLoading(false);
     }
-  }, [resourceKey, page, search, idField, tablePageSize]);
+  }, [resourceKey, page, search, idField, tablePageSize, showArchived]);
 
   useEffect(() => {
     void load();
@@ -125,6 +140,17 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       router.push(`/admin/${meta.adminPath}?${q.toString()}`);
     }
   }, [tablePageSize, page, searchParams, router, meta.adminPath]);
+
+  const prevShowArchived = useRef(showArchived);
+  useEffect(() => {
+    if (prevShowArchived.current === showArchived) return;
+    prevShowArchived.current = showArchived;
+    if (page !== 1) {
+      const q = new URLSearchParams(searchParams.toString());
+      q.set("page", "1");
+      router.push(`/admin/${meta.adminPath}?${q.toString()}`);
+    }
+  }, [showArchived, page, searchParams, router, meta.adminPath]);
 
   const onInlineFieldChange = useCallback(
     async (row: Row, field: string, value: string) => {
@@ -889,6 +915,11 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     if (id) setDeleteId(id);
   }
 
+  function requestUnarchive(row: Row) {
+    const id = String(row[idField] || "");
+    if (id) setUnarchiveId(id);
+  }
+
   async function confirmDelete() {
     if (!deleteId) return;
     setDeleting(true);
@@ -903,11 +934,29 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     }
   }
 
+  async function confirmUnarchive() {
+    if (!unarchiveId) return;
+    setUnarchiving(true);
+    try {
+      await unarchiveOne(resourceKey, unarchiveId);
+      setUnarchiveId(null);
+      await load();
+    } catch {
+      // toast handled in client-api
+    } finally {
+      setUnarchiving(false);
+    }
+  }
+
   return (
     <>
       <PageHeader
         title={meta.title}
-        description={`${total} record${total === 1 ? "" : "s"} · sorted by ID`}
+        description={
+          showArchived
+            ? `${total} record${total === 1 ? "" : "s"} · including archived · sorted by ID`
+            : `${total} record${total === 1 ? "" : "s"} · sorted by ID`
+        }
         actionLabel={`Add ${meta.singular}`}
         onAction={openCreate}
       />
@@ -918,6 +967,8 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         onRowOpen={openEdit}
         onRowClick={hasDetailPage(resourceKey) ? openDetail : undefined}
         onRowDelete={requestDelete}
+        onRowUnarchive={showArchived ? requestUnarchive : undefined}
+        isRowArchived={isArchivedRow}
         loading={loading}
         page={page}
         pageSize={tablePageSize}
@@ -945,6 +996,18 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         }}
         onCancel={() => {
           if (!deleting) setDeleteId(null);
+        }}
+      />
+      <ConfirmDialog
+        open={Boolean(unarchiveId)}
+        title={`Restore ${meta.singular.toLowerCase()}?`}
+        message="This record will be unarchived and shown in the active list again."
+        confirmLabel={unarchiving ? "Restoring…" : "Unarchive"}
+        onConfirm={() => {
+          if (!unarchiving) void confirmUnarchive();
+        }}
+        onCancel={() => {
+          if (!unarchiving) setUnarchiveId(null);
         }}
       />
     </>

@@ -46,6 +46,7 @@ export async function fetchList<T>(
     pageSize?: number;
     search?: string;
     sort?: string;
+    archived?: boolean;
   } = {},
   opts?: MutateOptions,
 ): Promise<ListResponse<T>> {
@@ -54,6 +55,7 @@ export async function fetchList<T>(
   if (params.pageSize) q.set("pageSize", String(params.pageSize));
   if (params.search) q.set("search", params.search);
   if (params.sort) q.set("sort", params.sort);
+  if (params.archived) q.set("archived", "1");
   const qs = q.toString();
   try {
     const res = await fetch(`/api/admin/${resource}${qs ? `?${qs}` : ""}`, {
@@ -139,6 +141,27 @@ export async function archiveOne(
     notifySuccess("Archived successfully", opts);
   } catch (e) {
     notifyError(e, "Archive failed", opts);
+    throw e;
+  }
+}
+
+export async function unarchiveOne(
+  resource: string,
+  id: string,
+  opts?: MutateOptions,
+): Promise<void> {
+  try {
+    const res = await fetch(
+      `/api/admin/${resource}/${encodeURIComponent(id)}?unarchive=1`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      },
+    );
+    await parseJson(res);
+    notifySuccess("Restored successfully", opts);
+  } catch (e) {
+    notifyError(e, "Restore failed", opts);
     throw e;
   }
 }

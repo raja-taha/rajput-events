@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useAdminTheme } from "@/components/admin/AdminThemeProvider";
 import {
   TABLE_PAGE_SIZE_OPTIONS,
@@ -11,9 +12,15 @@ import {
 export default function AdminProfilePage() {
   const router = useRouter();
   const { theme, toggleTheme } = useAdminTheme();
-  const { tablePageSize, setTablePageSize } = useAdminPreferences();
+  const {
+    tablePageSize,
+    setTablePageSize,
+    showArchived,
+    setShowArchived,
+  } = useAdminPreferences();
   const [email, setEmail] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
+  const [savingArchived, setSavingArchived] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/auth/me")
@@ -26,6 +33,20 @@ export default function AdminProfilePage() {
     await fetch("/api/admin/auth/logout", { method: "POST" });
     router.push("/admin/login");
     router.refresh();
+  }
+
+  async function toggleShowArchived() {
+    setSavingArchived(true);
+    try {
+      await setShowArchived(!showArchived);
+      toast.success(
+        !showArchived ? "Showing archived records" : "Showing active records",
+      );
+    } catch {
+      toast.error("Failed to update setting");
+    } finally {
+      setSavingArchived(false);
+    }
   }
 
   return (
@@ -56,7 +77,7 @@ export default function AdminProfilePage() {
               </button>
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 border-b border-[var(--admin-border)] pb-3">
             <div>
               <dt className="text-[var(--admin-muted)]">Rows per page</dt>
               <p className="mt-0.5 text-xs text-[var(--admin-muted)]">
@@ -79,6 +100,32 @@ export default function AdminProfilePage() {
                   </option>
                 ))}
               </select>
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <dt className="text-[var(--admin-muted)]">Show archived</dt>
+              <p className="mt-0.5 text-xs text-[var(--admin-muted)]">
+                Include archived records on every list page (saved in database)
+              </p>
+            </div>
+            <dd>
+              <button
+                type="button"
+                className={`admin-btn !px-3 !py-1.5 text-xs ${
+                  showArchived
+                    ? "admin-btn-primary"
+                    : "admin-btn-ghost"
+                }`}
+                onClick={() => void toggleShowArchived()}
+                disabled={savingArchived}
+              >
+                {savingArchived
+                  ? "Saving…"
+                  : showArchived
+                    ? "On"
+                    : "Off"}
+              </button>
             </dd>
           </div>
         </dl>

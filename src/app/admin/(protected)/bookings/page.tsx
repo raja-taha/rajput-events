@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { EntityListClient } from "@/components/admin/EntityListClient";
 
-export const metadata = { title: "bookings" };
+export const metadata = { title: "Bookings" };
 
 export default function Page() {
   return (

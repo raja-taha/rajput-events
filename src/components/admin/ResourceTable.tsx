@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ArchiveRestore } from "lucide-react";
 
 export type TableColumn<T> = {
   key: string;
@@ -17,6 +17,8 @@ type Props<T extends { [k: string]: unknown }> = {
   onRowOpen: (row: T) => void;
   onRowClick?: (row: T) => void;
   onRowDelete?: (row: T) => void;
+  onRowUnarchive?: (row: T) => void;
+  isRowArchived?: (row: T) => boolean;
   loading?: boolean;
   page: number;
   pageSize: number;
@@ -51,6 +53,8 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
   onRowOpen,
   onRowClick,
   onRowDelete,
+  onRowUnarchive,
+  isRowArchived,
   loading,
   page,
   pageSize,
@@ -122,13 +126,18 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
             ) : (
               rows.map((row, index) => {
                 const key = rowKey(row) || `row-${index}`;
+                const rowArchived = isRowArchived ? isRowArchived(row) : false;
                 return (
                   <tr
                     key={key}
                     className={`border-b border-[var(--admin-border)] hover:bg-[var(--admin-surface-2)]/70 ${
-                      onRowClick ? "cursor-pointer" : ""
-                    }`}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                      onRowClick && !rowArchived ? "cursor-pointer" : ""
+                    } ${rowArchived ? "opacity-80" : ""}`}
+                    onClick={
+                      onRowClick && !rowArchived
+                        ? () => onRowClick(row)
+                        : undefined
+                    }
                   >
                     {columns.map((col) => (
                       <td
@@ -145,26 +154,42 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
                         className="inline-flex items-center gap-0.5"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <button
-                          type="button"
-                          onClick={() => onRowOpen(row)}
-                          className="rounded p-1.5 text-[var(--admin-primary)] hover:bg-[var(--admin-surface-2)]"
-                          aria-label="Edit"
-                          title="Edit"
-                        >
-                          <Pencil size={14} strokeWidth={2} />
-                        </button>
-                        {onRowDelete ? (
-                          <button
-                            type="button"
-                            onClick={() => onRowDelete(row)}
-                            className="rounded p-1.5 text-[var(--admin-danger)] hover:bg-[var(--admin-surface-2)]"
-                            aria-label="Delete"
-                            title="Delete"
-                          >
-                            <Trash2 size={14} strokeWidth={2} />
-                          </button>
-                        ) : null}
+                        {rowArchived ? (
+                          onRowUnarchive ? (
+                            <button
+                              type="button"
+                              onClick={() => onRowUnarchive(row)}
+                              className="rounded p-1.5 text-[var(--admin-success)] hover:bg-[var(--admin-surface-2)]"
+                              aria-label="Unarchive"
+                              title="Unarchive"
+                            >
+                              <ArchiveRestore size={14} strokeWidth={2} />
+                            </button>
+                          ) : null
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => onRowOpen(row)}
+                              className="rounded p-1.5 text-[var(--admin-primary)] hover:bg-[var(--admin-surface-2)]"
+                              aria-label="Edit"
+                              title="Edit"
+                            >
+                              <Pencil size={14} strokeWidth={2} />
+                            </button>
+                            {onRowDelete ? (
+                              <button
+                                type="button"
+                                onClick={() => onRowDelete(row)}
+                                className="rounded p-1.5 text-[var(--admin-danger)] hover:bg-[var(--admin-surface-2)]"
+                                aria-label="Delete"
+                                title="Delete"
+                              >
+                                <Trash2 size={14} strokeWidth={2} />
+                              </button>
+                            ) : null}
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

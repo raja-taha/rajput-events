@@ -19,6 +19,7 @@ const DEFAULTS: Record<string, string> = {
   serviceFocus: "Simple decor and coordination",
   currency: "PKR",
   timezone: "Asia/Karachi",
+  showArchived: "0",
 };
 
 async function loadSettings() {
@@ -51,7 +52,14 @@ export async function PATCH(request: NextRequest) {
   }
 
   for (const [key, value] of Object.entries(body)) {
-    if (!(key in DEFAULTS) && key !== "currency" && key !== "timezone") continue;
+    if (
+      !(key in DEFAULTS) &&
+      key !== "currency" &&
+      key !== "timezone" &&
+      key !== "showArchived"
+    ) {
+      continue;
+    }
     await Setting.findOneAndUpdate(
       { key },
       {

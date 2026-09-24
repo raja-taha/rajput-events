@@ -186,6 +186,11 @@ export async function crudArchive(
   def: ResourceDef,
   businessId: string,
 ) {
+  const url = new URL(request.url);
+  if (url.searchParams.get("unarchive") === "1") {
+    return crudUnarchive(request, def, businessId);
+  }
+
   const session = await requireAdminApi(request);
   if (!session) return unauthorized();
   if (def.readOnly) return fail("FORBIDDEN", "Read-only resource", 403);
@@ -210,4 +215,35 @@ export async function crudArchive(
     changes: { before, after: toPlain(existing) },
   });
   return ok({ archived: true, [def.businessIdField]: businessId });
+}
+
+export async function crudUnarchive(
+  request: NextRequest,
+  def: ResourceDef,
+  businessId: string,
+) {
+  const session = await requireAdminApi(request);
+  if (!session) return unauthorized();
+  if (def.readOnly) return fail("FORBIDDEN", "Read-only resource", 403);
+  await connectMongo();
+  const existing = await def.model.findOne({
+    [def.businessIdField]: businessId,
+  });
+  if (!existing) return notFound();
+  const before = toPlain(existing);
+  existing.set({
+    archivedAt: null,
+    archivedBy: null,
+    updatedBy: session.email,
+  });
+  await existing.save();
+  await writeAudit({
+    action: "unarchive",
+    resource: def.resource,
+    resourceId: String(existing._id),
+    businessId,
+    actor: session.email,
+    changes: { before, after: toPlain(existing) },
+  });
+  return ok({ archived: false, [def.businessIdField]: businessId });
 }
