@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import {
   AlertTriangle,
   CalendarDays,
@@ -76,7 +77,6 @@ function KpiCard({
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState<Summary | null>(null);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/dashboard/summary")
@@ -85,16 +85,8 @@ export default function AdminDashboardPage() {
         if (!r.ok) throw new Error(json?.error?.message || "Failed to load");
         setData(json);
       })
-      .catch((e) => setError(e.message));
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load dashboard"));
   }, []);
-
-  if (error) {
-    return (
-      <div className="admin-card p-6 text-red-600">
-        Unable to load dashboard: {error}
-      </div>
-    );
-  }
 
   if (!data) {
     return (

@@ -106,7 +106,6 @@ export function EntityFormClient({
   const [form, setForm] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [confirmArchive, setConfirmArchive] = useState(false);
 
   useEffect(() => {
@@ -121,8 +120,8 @@ export function EntityFormClient({
           next[f.name] = toFormValue(doc[f.name]);
         }
         setForm(next);
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
+      } catch {
+        // toast handled in client-api
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -135,7 +134,6 @@ export function EntityFormClient({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setError(null);
     try {
       const payload = parsePayload(fields, form);
       if (isNew) {
@@ -146,8 +144,8 @@ export function EntityFormClient({
         await updateOne(resourceKey, businessId!, payload);
         router.replace(`/admin/${meta.adminPath}`);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+    } catch {
+      // toast handled in client-api
     } finally {
       setSaving(false);
     }
@@ -159,8 +157,8 @@ export function EntityFormClient({
     try {
       await archiveOne(resourceKey, businessId);
       router.replace(`/admin/${meta.adminPath}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Archive failed");
+    } catch {
+      // toast handled in client-api
     } finally {
       setSaving(false);
       setConfirmArchive(false);
@@ -179,11 +177,6 @@ export function EntityFormClient({
         <p className="text-xs text-[var(--admin-muted)]">Loading…</p>
       ) : (
         <form onSubmit={onSubmit} className="admin-card max-w-3xl p-4">
-          {error ? (
-            <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-700">
-              {error}
-            </p>
-          ) : null}
           <div className="grid gap-2.5 sm:grid-cols-2">
             {fields.map((field) => (
               <div

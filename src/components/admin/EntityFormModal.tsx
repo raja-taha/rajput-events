@@ -113,13 +113,11 @@ export function EntityFormModal({
   const [form, setForm] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    setError(null);
     setConfirmArchive(false);
     setSavedId(businessId || null);
 
@@ -150,10 +148,8 @@ export function EntityFormModal({
           next[f.name] = value;
         }
         setForm(next);
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load");
-        }
+      } catch {
+        // toast handled in client-api
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -180,7 +176,6 @@ export function EntityFormModal({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setError(null);
     try {
       const payload = parsePayload(fields, form);
       if (isNew && !savedId) {
@@ -192,8 +187,8 @@ export function EntityFormModal({
       }
       onSaved();
       if (resourceKey !== "quotes") onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+    } catch {
+      // toast handled in client-api
     } finally {
       setSaving(false);
     }
@@ -206,8 +201,8 @@ export function EntityFormModal({
       await archiveOne(resourceKey, activeId);
       onSaved();
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Archive failed");
+    } catch {
+      // toast handled in client-api
     } finally {
       setSaving(false);
       setConfirmArchive(false);
@@ -246,11 +241,6 @@ export function EntityFormModal({
             <p className="py-8 text-center text-xs text-[var(--admin-muted)]">Loading…</p>
           ) : (
             <>
-              {error ? (
-                <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-700">
-                  {error}
-                </p>
-              ) : null}
               <form id="entity-form-modal" onSubmit={onSubmit} className="grid gap-2.5 sm:grid-cols-2">
                 {fields.map((field) => (
                   <div

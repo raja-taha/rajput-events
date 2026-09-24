@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AdminThemeProvider } from "./AdminThemeProvider";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminTopbar } from "./AdminTopbar";
+import { AdminToaster } from "./AdminToaster";
 import { ADMIN_NAV } from "@/lib/admin/nav";
 
 export function AdminShell({
@@ -52,6 +53,7 @@ export function AdminShell({
           <main className="flex-1 p-3 lg:p-4">{children}</main>
         </div>
       </div>
+      <AdminToaster />
     </AdminThemeProvider>
   );
 }

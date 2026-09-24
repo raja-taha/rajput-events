@@ -43,7 +43,7 @@ export function RelationSearchSelect({
           pageSize: 25,
           search,
           sort: `${meta.businessIdField}:asc`,
-        });
+        }, { silentAll: true });
         setOptions(
           res.data.map((row) => {
             const id = String(row[meta.businessIdField] ?? "");
@@ -76,7 +76,9 @@ export function RelationSearchSelect({
     let cancelled = false;
     (async () => {
       try {
-        const row = await getOne<Record<string, unknown>>(resource, value);
+        const row = await getOne<Record<string, unknown>>(resource, value, {
+          silentAll: true,
+        });
         if (cancelled) return;
         const name = String(row[meta.labelField] ?? "");
         setSelectedLabel(name && name !== value ? `${value} — ${name}` : value);

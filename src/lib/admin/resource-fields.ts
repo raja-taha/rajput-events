@@ -55,7 +55,7 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "venueStatusOrName", label: "Venue" },
     { name: "targetBudget", label: "Target budget", type: "number" },
     { name: "packageLevel", label: "Package", type: "select", options: packageLevels },
-    { name: "stage", label: "Stage", type: "select", options: enquiryStages },
+    { name: "stage", label: "Status", type: "select", options: enquiryStages, required: true },
     { name: "conversationNotes", label: "Notes", type: "textarea" },
   ],
   "event-briefs": [

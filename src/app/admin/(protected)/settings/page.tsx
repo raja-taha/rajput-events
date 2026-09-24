@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 type SettingsMap = Record<string, string>;
 
@@ -21,18 +22,22 @@ const FIELDS: Array<{ key: string; label: string; group: string }> = [
 export default function AdminSettingsPage() {
   const [values, setValues] = useState<SettingsMap>({});
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/settings")
-      .then((r) => r.json())
-      .then((d) => setValues(d.data || d || {}));
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d?.error?.message || "Failed to load settings");
+        setValues(d.data || d || {});
+      })
+      .catch((e) =>
+        toast.error(e instanceof Error ? e.message : "Failed to load settings"),
+      );
   }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setMessage("");
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
@@ -41,10 +46,10 @@ export default function AdminSettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error?.message || "Save failed");
-      setMessage("Settings saved");
+      toast.success("Settings saved");
       setValues(data.data || data);
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Save failed");
+      toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
       setSaving(false);
     }
@@ -55,7 +60,8 @@ export default function AdminSettingsPage() {
       <div className="admin-card p-6">
         <h2 className="text-xl font-bold">Business settings</h2>
         <p className="mt-1 text-sm text-[var(--admin-muted)]">
-          Non-secret configuration for Rajput Events operations. Currency PKR · Timezone Asia/Karachi.
+          Non-secret configuration for Rajput Events operations. Currency PKR · Timezone
+          Asia/Karachi.
         </p>
         <div className="mt-6 grid gap-4">
           {FIELDS.map((field) => (
@@ -73,9 +79,6 @@ export default function AdminSettingsPage() {
             </label>
           ))}
         </div>
-        {message ? (
-          <p className="mt-4 text-sm text-[var(--admin-primary)]">{message}</p>
-        ) : null}
         <button type="submit" disabled={saving} className="admin-btn admin-btn-primary mt-6">
           {saving ? "Saving…" : "Save settings"}
         </button>

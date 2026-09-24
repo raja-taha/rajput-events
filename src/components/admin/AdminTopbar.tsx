@@ -13,6 +13,7 @@ import {
   Sun,
   UserCircle,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAdminTheme } from "./AdminThemeProvider";
 
 type Props = {
@@ -32,9 +33,13 @@ export function AdminTopbar({ title, subtitle, email, onMenuClick }: Props) {
   async function logout() {
     setLoggingOut(true);
     try {
-      await fetch("/api/admin/auth/logout", { method: "POST" });
+      const res = await fetch("/api/admin/auth/logout", { method: "POST" });
+      if (!res.ok) throw new Error("Logout failed");
+      toast.success("Signed out");
       router.push("/admin/login");
       router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Logout failed");
     } finally {
       setLoggingOut(false);
     }

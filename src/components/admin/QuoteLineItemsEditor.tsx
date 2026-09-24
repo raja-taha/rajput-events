@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { formatMoney } from "@/lib/admin/money";
 import { QUOTE_ITEM_CATEGORY } from "@/models/enums";
 
@@ -40,7 +41,6 @@ export function QuoteLineItemsEditor({
   const [totals, setTotals] = useState<Totals | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [draft, setDraft] = useState({
     category: "Other",
     serviceDeliverable: "",
@@ -51,7 +51,6 @@ export function QuoteLineItemsEditor({
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError("");
     try {
       const res = await fetch(`/api/admin/quotes/${encodeURIComponent(quoteId)}/items`, {
         credentials: "include",
@@ -61,7 +60,7 @@ export function QuoteLineItemsEditor({
       setItems(data.items || []);
       setTotals(data.totals || null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load items");
+      toast.error(e instanceof Error ? e.message : "Failed to load items");
     } finally {
       setLoading(false);
     }
@@ -74,7 +73,6 @@ export function QuoteLineItemsEditor({
   async function addLine(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setError("");
     try {
       const res = await fetch(`/api/admin/quotes/${encodeURIComponent(quoteId)}/items`, {
         method: "POST",
@@ -90,6 +88,7 @@ export function QuoteLineItemsEditor({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error?.message || "Failed to add line");
+      toast.success("Line item added");
       setDraft({
         category: "Other",
         serviceDeliverable: "",
@@ -99,7 +98,7 @@ export function QuoteLineItemsEditor({
       });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add line");
+      toast.error(err instanceof Error ? err.message : "Failed to add line");
     } finally {
       setSaving(false);
     }
@@ -115,9 +114,10 @@ export function QuoteLineItemsEditor({
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error?.message || "Failed to archive line");
+      toast.success("Line item archived");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to archive line");
+      toast.error(err instanceof Error ? err.message : "Failed to archive line");
     } finally {
       setSaving(false);
     }
@@ -147,12 +147,6 @@ export function QuoteLineItemsEditor({
           Line amounts are calculated as quantity × unit price (excl. tax). Totals update from live lines.
         </p>
       </div>
-
-      {error ? (
-        <div className="mx-4 mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </div>
-      ) : null}
 
       <div className="overflow-x-auto">
         <table className="admin-table">

@@ -6,10 +6,11 @@ import { PageHeader } from "./PageHeader";
 import { ResourceTable, type TableColumn } from "./ResourceTable";
 import { StatusBadge } from "./StatusBadge";
 import { EntityFormModal } from "./EntityFormModal";
+import { MoneyText } from "./MoneyText";
 import { fetchList, updateOne } from "@/lib/admin/client-api";
 import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
-import { customerStatuses } from "@/models/enums";
+import { customerStatuses, enquiryStages } from "@/models/enums";
 
 type Row = Record<string, unknown>;
 
@@ -38,7 +39,6 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
@@ -47,6 +47,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const idField = def.businessIdField;
   const labelField = def.labelField;
   const isCustomers = resourceKey === "customers";
+  const isEnquiries = resourceKey === "enquiries";
 
   useEffect(() => {
     if (!newParam && !editParam) {
@@ -74,7 +75,6 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const res = await fetchList<Row>(resourceKey, {
         page,
@@ -85,8 +85,10 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       setRows(res.data);
       setTotal(res.total);
       setTotalPages(res.totalPages);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+    } catch {
+      setRows([]);
+      setTotal(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -96,25 +98,23 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     void load();
   }, [load]);
 
-  const onCustomerStatusChange = useCallback(
-    async (row: Row, status: string) => {
+  const onInlineFieldChange = useCallback(
+    async (row: Row, field: string, value: string) => {
       const id = String(row[idField] || "");
-      if (!id || String(row.status || "") === status) return;
+      if (!id || String(row[field] || "") === value) return;
       setStatusSavingId(id);
-      setError(null);
-      const previous = row.status;
+      const previous = row[field];
       setRows((prev) =>
-        prev.map((r) => (String(r[idField]) === id ? { ...r, status } : r)),
+        prev.map((r) => (String(r[idField]) === id ? { ...r, [field]: value } : r)),
       );
       try {
-        await updateOne(resourceKey, id, { status });
-      } catch (e) {
+        await updateOne(resourceKey, id, { [field]: value });
+      } catch {
         setRows((prev) =>
           prev.map((r) =>
-            String(r[idField]) === id ? { ...r, status: previous } : r,
+            String(r[idField]) === id ? { ...r, [field]: previous } : r,
           ),
         );
-        setError(e instanceof Error ? e.message : "Failed to update status");
       } finally {
         setStatusSavingId(null);
       }
@@ -133,24 +133,20 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       },
     ];
 
-    if (labelField && labelField !== idField) {
-      cols.push({
-        key: "col-label",
-        header: "Name",
-        render: (row) => {
-          const value = row[labelField];
-          const text = value == null || value === "" ? "—" : String(value);
-          return (
-            <span className="text-xs">
-              {text.length > 60 ? `${text.slice(0, 60)}…` : text}
-            </span>
-          );
-        },
-      });
-    }
-
     if (isCustomers) {
       cols.push(
+        {
+          key: "col-label",
+          header: "Name",
+          render: (row) => {
+            const text = String(row.fullName || "—");
+            return (
+              <span className="text-xs">
+                {text.length > 40 ? `${text.slice(0, 40)}…` : text}
+              </span>
+            );
+          },
+        },
         {
           key: "col-phone",
           header: "Phone",
@@ -188,7 +184,9 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
                 value={value}
                 disabled={statusSavingId === id}
                 onClick={(e) => e.stopPropagation()}
-                onChange={(e) => void onCustomerStatusChange(row, e.target.value)}
+                onChange={(e) =>
+                  void onInlineFieldChange(row, "status", e.target.value)
+                }
               >
                 {customerStatuses.map((s) => (
                   <option key={s} value={s}>
@@ -201,6 +199,97 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         },
       );
       return cols;
+    }
+
+    if (isEnquiries) {
+      cols.push(
+        {
+          key: "col-customer",
+          header: "Customer",
+          render: (row) => {
+            const name = String(row.customerName || "");
+            const cid = String(row.customerId || "");
+            return (
+              <div className="min-w-0">
+                <div className="truncate text-xs font-medium">
+                  {name || "—"}
+                </div>
+                {cid ? (
+                  <div className="font-mono text-[10px] text-[var(--admin-muted)]">
+                    {cid}
+                  </div>
+                ) : null}
+              </div>
+            );
+          },
+        },
+        {
+          key: "col-event-type",
+          header: "Event type",
+          render: (row) => (
+            <span className="text-xs">{String(row.eventType || "—")}</span>
+          ),
+        },
+        {
+          key: "col-package",
+          header: "Package",
+          render: (row) => (
+            <span className="text-xs">{String(row.packageLevel || "—")}</span>
+          ),
+        },
+        {
+          key: "col-budget",
+          header: "Budget",
+          render: (row) => (
+            <MoneyText
+              amount={Number(row.targetBudget || 0)}
+              className="text-xs tabular-nums"
+            />
+          ),
+        },
+        {
+          key: "col-status",
+          header: "Status",
+          render: (row) => {
+            const id = String(row[idField] || "");
+            const value = String(row.stage || "New");
+            return (
+              <select
+                className="admin-input !w-auto min-w-[7.5rem] !py-1 text-[11px]"
+                value={value}
+                disabled={statusSavingId === id}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  void onInlineFieldChange(row, "stage", e.target.value)
+                }
+              >
+                {enquiryStages.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            );
+          },
+        },
+      );
+      return cols;
+    }
+
+    if (labelField && labelField !== idField) {
+      cols.push({
+        key: "col-label",
+        header: "Name",
+        render: (row) => {
+          const value = row[labelField];
+          const text = value == null || value === "" ? "—" : String(value);
+          return (
+            <span className="text-xs">
+              {text.length > 60 ? `${text.slice(0, 60)}…` : text}
+            </span>
+          );
+        },
+      });
     }
 
     const statusField =
@@ -221,8 +310,9 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     labelField,
     rows,
     isCustomers,
+    isEnquiries,
     statusSavingId,
-    onCustomerStatusChange,
+    onInlineFieldChange,
   ]);
 
   const setQuery = (next: { page?: number; search?: string }) => {
@@ -254,9 +344,6 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         actionLabel={`Add ${meta.singular}`}
         onAction={openCreate}
       />
-      {error ? (
-        <p className="mb-3 text-xs text-[var(--admin-danger)]">{error}</p>
-      ) : null}
       <ResourceTable
         columns={columns}
         rows={rows}

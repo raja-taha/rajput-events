@@ -3,10 +3,12 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, Sparkles } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   AdminThemeProvider,
   useAdminTheme,
 } from "@/components/admin/AdminThemeProvider";
+import { AdminToaster } from "@/components/admin/AdminToaster";
 
 function LoginForm() {
   const router = useRouter();
@@ -15,12 +17,10 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/admin/auth/login", {
@@ -30,14 +30,15 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data?.error?.message || "Invalid email or password");
+        toast.error(data?.error?.message || "Invalid email or password");
         return;
       }
+      toast.success("Signed in");
       const next = params.get("next") || "/admin";
       router.push(next);
       router.refresh();
     } catch {
-      setError("Unable to sign in. Please try again.");
+      toast.error("Unable to sign in. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -128,12 +129,6 @@ function LoginForm() {
             </div>
           </label>
 
-          {error ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </div>
-          ) : null}
-
           <button
             type="submit"
             disabled={loading}
@@ -151,6 +146,7 @@ export default function LoginClient() {
   return (
     <AdminThemeProvider>
       <LoginForm />
+      <AdminToaster />
     </AdminThemeProvider>
   );
 }
