@@ -18,6 +18,13 @@ export const LEAD_SOURCE = [
 
 export const MARKETING_CONSENT = ["Not asked", "Yes", "No"] as const;
 
+export const CUSTOMER_STATUS = [
+  "Active",
+  "Lead",
+  "Inactive",
+  "Do not contact",
+] as const;
+
 export const EVENT_TYPE = [
   "Birthday",
   "Aqiqah",
@@ -326,6 +333,7 @@ export const REFERRAL_CONTACT_CONSENT = ["Not asked", "Yes", "No"] as const;
 export const preferredContactMethods = PREFERRED_CONTACT_METHOD;
 export const leadSources = LEAD_SOURCE;
 export const marketingConsents = MARKETING_CONSENT;
+export const customerStatuses = CUSTOMER_STATUS;
 export const eventTypes = EVENT_TYPE;
 export const settingsIndoorOutdoor = SETTING_INDOOR_OUTDOOR;
 export const packageLevels = PACKAGE_LEVEL;

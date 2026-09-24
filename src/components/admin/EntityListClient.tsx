@@ -6,9 +6,10 @@ import { PageHeader } from "./PageHeader";
 import { ResourceTable, type TableColumn } from "./ResourceTable";
 import { StatusBadge } from "./StatusBadge";
 import { EntityFormModal } from "./EntityFormModal";
-import { fetchList } from "@/lib/admin/client-api";
+import { fetchList, updateOne } from "@/lib/admin/client-api";
 import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
+import { customerStatuses } from "@/models/enums";
 
 type Row = Record<string, unknown>;
 
@@ -40,10 +41,12 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const openedFromQuery = useRef<string | null>(null);
 
   const idField = def.businessIdField;
   const labelField = def.labelField;
+  const isCustomers = resourceKey === "customers";
 
   useEffect(() => {
     if (!newParam && !editParam) {
@@ -93,6 +96,32 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     void load();
   }, [load]);
 
+  const onCustomerStatusChange = useCallback(
+    async (row: Row, status: string) => {
+      const id = String(row[idField] || "");
+      if (!id || String(row.status || "") === status) return;
+      setStatusSavingId(id);
+      setError(null);
+      const previous = row.status;
+      setRows((prev) =>
+        prev.map((r) => (String(r[idField]) === id ? { ...r, status } : r)),
+      );
+      try {
+        await updateOne(resourceKey, id, { status });
+      } catch (e) {
+        setRows((prev) =>
+          prev.map((r) =>
+            String(r[idField]) === id ? { ...r, status: previous } : r,
+          ),
+        );
+        setError(e instanceof Error ? e.message : "Failed to update status");
+      } finally {
+        setStatusSavingId(null);
+      }
+    },
+    [idField, resourceKey],
+  );
+
   const columns = useMemo(() => {
     const cols: TableColumn<Row>[] = [
       {
@@ -120,6 +149,60 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       });
     }
 
+    if (isCustomers) {
+      cols.push(
+        {
+          key: "col-phone",
+          header: "Phone",
+          render: (row) => (
+            <span className="text-xs tabular-nums">
+              {String(row.mobileWhatsApp || "—")}
+            </span>
+          ),
+        },
+        {
+          key: "col-email",
+          header: "Email",
+          render: (row) => {
+            const email = String(row.email || "");
+            return (
+              <span className="text-xs" title={email || undefined}>
+                {email
+                  ? email.length > 28
+                    ? `${email.slice(0, 28)}…`
+                    : email
+                  : "—"}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-status",
+          header: "Status",
+          render: (row) => {
+            const id = String(row[idField] || "");
+            const value = String(row.status || "Active");
+            return (
+              <select
+                className="admin-input !w-auto min-w-[7.5rem] !py-1 text-[11px]"
+                value={value}
+                disabled={statusSavingId === id}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => void onCustomerStatusChange(row, e.target.value)}
+              >
+                {customerStatuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            );
+          },
+        },
+      );
+      return cols;
+    }
+
     const statusField =
       STATUS_FIELDS.find((f) => rows.some((r) => r[f] != null)) ||
       STATUS_FIELDS.find((f) => f === "stage" || f === "status");
@@ -133,7 +216,14 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     }
 
     return cols;
-  }, [idField, labelField, rows]);
+  }, [
+    idField,
+    labelField,
+    rows,
+    isCustomers,
+    statusSavingId,
+    onCustomerStatusChange,
+  ]);
 
   const setQuery = (next: { page?: number; search?: string }) => {
     const q = new URLSearchParams(searchParams.toString());

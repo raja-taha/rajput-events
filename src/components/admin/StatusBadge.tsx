@@ -15,6 +15,7 @@ const GREEN = new Set([
   "won",
   "confirmed",
   "yes",
+  "active",
 ]);
 
 const AMBER = new Set([
@@ -32,6 +33,7 @@ const AMBER = new Set([
   "draft",
   "sent",
   "scheduled",
+  "lead",
 ]);
 
 const RED = new Set([
@@ -44,6 +46,7 @@ const RED = new Set([
   "review",
   "cancelled",
   "void",
+  "do not contact",
 ]);
 
 const GRAY = new Set([
@@ -53,6 +56,7 @@ const GRAY = new Set([
   "retired",
   "not asked",
   "no",
+  "inactive",
 ]);
 
 const BLUE = new Set(["issued", "quote sent"]);

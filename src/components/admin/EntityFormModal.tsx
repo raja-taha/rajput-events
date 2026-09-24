@@ -124,7 +124,13 @@ export function EntityFormModal({
     setSavedId(businessId || null);
 
     if (!businessId) {
-      setForm({});
+      const defaults: Record<string, string> = {};
+      for (const f of fields) {
+        if (f.type === "select" && f.options?.length && f.required) {
+          defaults[f.name] = f.options[0];
+        }
+      }
+      setForm(defaults);
       setLoading(false);
       return;
     }
@@ -137,7 +143,11 @@ export function EntityFormModal({
         if (cancelled) return;
         const next: Record<string, string> = {};
         for (const f of fields) {
-          next[f.name] = toFormValue(doc[f.name]);
+          let value = toFormValue(doc[f.name]);
+          if (!value && f.type === "select" && f.options?.length) {
+            value = f.options[0];
+          }
+          next[f.name] = value;
         }
         setForm(next);
       } catch (e) {

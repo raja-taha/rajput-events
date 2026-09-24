@@ -31,8 +31,9 @@ const RESOURCE_MAP: Record<ResourceKey, ResourceDef> = {
     model: Customer as ResourceDef["model"],
     businessIdField: "customerId",
     idKey: "customer",
-    searchFields: ["customerId", "fullName", "email", "mobileWhatsApp"],
+    searchFields: ["customerId", "fullName", "email", "mobileWhatsApp", "status"],
     labelField: "fullName",
+    createDefaults: { status: "Active" },
   },
   enquiries: {
     resource: "enquiries",

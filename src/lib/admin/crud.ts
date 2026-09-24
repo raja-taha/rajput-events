@@ -159,18 +159,26 @@ export async function crudPatch(
   const updates = sanitizeBody(body, def.businessIdField);
   updates.updatedBy = session.email;
   const before = toPlain(existing);
-  existing.set(updates);
-  await existing.save();
-  const after = toPlain(existing);
+
+  const updated = await def.model
+    .findOneAndUpdate(
+      { [def.businessIdField]: businessId },
+      { $set: updates },
+      { runValidators: true, returnDocument: "after" },
+    )
+    .lean();
+
+  if (!updated) return notFound();
+
   await writeAudit({
     action: "update",
     resource: def.resource,
     resourceId: String(existing._id),
     businessId,
     actor: session.email,
-    changes: { before, after },
+    changes: { before, after: updated },
   });
-  return ok(after);
+  return ok(updated);
 }
 
 export async function crudArchive(

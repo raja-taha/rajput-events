@@ -2,6 +2,7 @@ import type { ResourceKey } from "./resource-config";
 import { RESOURCE_META } from "./resource-config";
 import {
   bookingStages,
+  customerStatuses,
   enquiryStages,
   eventTypes,
   packageLevels,
@@ -26,6 +27,13 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "fullName", label: "Full name", required: true },
     { name: "mobileWhatsApp", label: "Mobile / WhatsApp" },
     { name: "email", label: "Email", type: "email" },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: customerStatuses,
+      required: true,
+    },
     { name: "billingAddress", label: "Billing address", type: "textarea" },
     { name: "cityArea", label: "City / area" },
     { name: "decisionMaker", label: "Decision maker" },
