@@ -4,26 +4,11 @@ import { requireAdminApi } from "@/lib/admin/auth";
 import { created, fail, ok, unauthorized, notFound } from "@/lib/admin/api";
 import { nextBusinessId } from "@/lib/admin/ids";
 import { writeAudit } from "@/lib/admin/audit";
+import { calcQuoteTotals, lineAmount } from "@/lib/admin/quote-totals";
 import { Quote } from "@/models/Quote";
 import { QuoteItem } from "@/models/QuoteItem";
 
 type Ctx = { params: Promise<{ id: string }> };
-
-function calcTotals(
-  items: Array<{ quantity?: number; unitPriceExclTax?: number }>,
-  discount: number,
-  taxAmount: number,
-  bookingAdvancePercent: number,
-) {
-  const itemSubtotal = items.reduce(
-    (sum, i) => sum + Number(i.quantity || 0) * Number(i.unitPriceExclTax || 0),
-    0,
-  );
-  const feeExclTax = itemSubtotal - Number(discount || 0);
-  const quoteTotal = feeExclTax + Number(taxAmount || 0);
-  const bookingAdvanceAmount = quoteTotal * Number(bookingAdvancePercent || 0);
-  return { itemSubtotal, feeExclTax, quoteTotal, bookingAdvanceAmount };
-}
 
 export async function GET(request: NextRequest, context: Ctx) {
   const session = await requireAdminApi(request);
@@ -41,15 +26,14 @@ export async function GET(request: NextRequest, context: Ctx) {
 
   const lines = items.map((item) => ({
     ...item,
-    lineAmount:
-      Number(item.quantity || 0) * Number(item.unitPriceExclTax || 0),
+    lineAmount: lineAmount(item.quantity, item.unitPriceExclTax),
   }));
 
-  const totals = calcTotals(
+  const totals = calcQuoteTotals(
     items,
     Number(quote.discount || 0),
     Number(quote.taxAmount || 0),
-    Number(quote.bookingAdvancePercent || 0),
+    quote.bookingAdvancePercent == null ? 0.6 : Number(quote.bookingAdvancePercent),
   );
 
   return ok({ quoteId, items: lines, totals });
@@ -72,16 +56,25 @@ export async function POST(request: NextRequest, context: Ctx) {
     return fail("INVALID_JSON", "Invalid request body");
   }
 
+  const quantity = Number(body.quantity ?? 1);
+  const unitPriceExclTax = Number(body.unitPriceExclTax ?? 0);
+  if (!Number.isFinite(quantity) || quantity < 0) {
+    return fail("VALIDATION", "Quantity must be a non-negative number");
+  }
+  if (!Number.isFinite(unitPriceExclTax) || unitPriceExclTax < 0) {
+    return fail("VALIDATION", "Unit price must be a non-negative number");
+  }
+
   const lineId = await nextBusinessId("quoteLine");
   const doc = await QuoteItem.create({
     lineId,
     quoteId,
     category: body.category || "Other",
-    serviceDeliverable: body.serviceDeliverable || "",
+    serviceDeliverable: String(body.serviceDeliverable || "").trim(),
     specificationFinish: body.specificationFinish || "",
-    quantity: Number(body.quantity ?? 1),
+    quantity,
     unit: body.unit || "item",
-    unitPriceExclTax: Number(body.unitPriceExclTax ?? 0),
+    unitPriceExclTax,
     notes: body.notes || "",
     createdBy: session.email,
     updatedBy: session.email,
@@ -95,5 +88,8 @@ export async function POST(request: NextRequest, context: Ctx) {
     metadata: { quoteId },
   });
 
-  return created(doc.toObject());
+  return created({
+    ...doc.toObject(),
+    lineAmount: lineAmount(quantity, unitPriceExclTax),
+  });
 }

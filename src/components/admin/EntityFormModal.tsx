@@ -15,6 +15,7 @@ import type { ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_META } from "@/lib/admin/resource-config";
 import { RESOURCE_FIELDS, RESOURCE_LABELS } from "@/lib/admin/resource-fields";
 import type { FieldDef } from "@/lib/admin/resource-fields";
+import { normalizeAdvanceRate } from "@/lib/admin/quote-totals";
 
 function FieldInput({
   field,
@@ -74,7 +75,11 @@ function toFormValue(v: unknown): string {
   return String(v);
 }
 
-function parsePayload(fields: FieldDef[], form: Record<string, string>) {
+function parsePayload(
+  fields: FieldDef[],
+  form: Record<string, string>,
+  resourceKey: ResourceKey,
+) {
   const out: Record<string, unknown> = {};
   for (const f of fields) {
     const raw = form[f.name];
@@ -86,6 +91,11 @@ function parsePayload(fields: FieldDef[], form: Record<string, string>) {
     } else {
       out[f.name] = raw;
     }
+  }
+  if (resourceKey === "quotes" && out.bookingAdvancePercent != null) {
+    out.bookingAdvancePercent = normalizeAdvanceRate(
+      Number(out.bookingAdvancePercent),
+    );
   }
   return out;
 }
@@ -127,6 +137,11 @@ export function EntityFormModal({
         if (f.type === "select" && f.options?.length && f.required) {
           defaults[f.name] = f.options[0];
         }
+      }
+      if (resourceKey === "quotes") {
+        defaults.bookingAdvancePercent = defaults.bookingAdvancePercent || "0.6";
+        defaults.discount = defaults.discount || "0";
+        defaults.taxAmount = defaults.taxAmount || "0";
       }
       setForm(defaults);
       setLoading(false);
@@ -177,7 +192,7 @@ export function EntityFormModal({
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = parsePayload(fields, form);
+      const payload = parsePayload(fields, form, resourceKey);
       if (isNew && !savedId) {
         const created = await createOne<Record<string, unknown>>(resourceKey, payload);
         const id = String(created[def.businessIdField]);
@@ -216,7 +231,11 @@ export function EntityFormModal({
         onClick={onClose}
         aria-hidden
       />
-      <div className="relative z-10 my-4 w-full max-w-2xl rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-2xl">
+      <div
+        className={`relative z-10 my-4 w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-2xl ${
+          resourceKey === "quotes" ? "max-w-5xl" : "max-w-2xl"
+        }`}
+      >
         <div className="flex items-center justify-between gap-3 border-b border-[var(--admin-border)] px-4 py-2.5">
           <div>
             <h2 className="text-sm font-semibold">
@@ -273,7 +292,12 @@ export function EntityFormModal({
                     quoteId={activeId}
                     discount={Number(form.discount || 0)}
                     taxAmount={Number(form.taxAmount || 0)}
-                    bookingAdvancePercent={Number(form.bookingAdvancePercent || 0.6)}
+                    bookingAdvancePercent={normalizeAdvanceRate(
+                      form.bookingAdvancePercent === "" ||
+                        form.bookingAdvancePercent == null
+                        ? 0.6
+                        : Number(form.bookingAdvancePercent),
+                    )}
                   />
                 </div>
               ) : null}

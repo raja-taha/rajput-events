@@ -11,7 +11,7 @@ const QuoteSchema = new Schema(
     issueDate: Date,
     validUntil: Date,
     version: { type: Number, default: 1 },
-    status: { type: String, enum: QUOTE_STATUS },
+    status: { type: String, enum: QUOTE_STATUS, default: "Draft" },
     discount: { type: Number, default: 0 },
     taxTreatmentConfirmed: {
       type: String,

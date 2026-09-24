@@ -73,10 +73,14 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "enquiryId", label: "Enquiry", type: "relation", relation: "enquiries" },
     { name: "issueDate", label: "Issue date", type: "date" },
     { name: "validUntil", label: "Valid until", type: "date" },
-    { name: "status", label: "Status", type: "select", options: quoteStatuses },
-    { name: "discount", label: "Discount", type: "number" },
-    { name: "taxAmount", label: "Tax amount", type: "number" },
-    { name: "bookingAdvancePercent", label: "Advance %", type: "number" },
+    { name: "status", label: "Status", type: "select", options: quoteStatuses, required: true },
+    { name: "discount", label: "Discount (PKR)", type: "number" },
+    { name: "taxAmount", label: "Tax amount (PKR)", type: "number" },
+    {
+      name: "bookingAdvancePercent",
+      label: "Advance rate (0–1, e.g. 0.6)",
+      type: "number",
+    },
     { name: "scopeAndExclusions", label: "Scope & exclusions", type: "textarea" },
   ],
   services: [

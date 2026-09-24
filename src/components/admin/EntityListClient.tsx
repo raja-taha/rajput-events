@@ -10,7 +10,8 @@ import { MoneyText } from "./MoneyText";
 import { fetchList, updateOne } from "@/lib/admin/client-api";
 import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
-import { customerStatuses, enquiryStages } from "@/models/enums";
+import { customerStatuses, enquiryStages, quoteStatuses } from "@/models/enums";
+import { formatDate } from "@/lib/admin/dates";
 
 type Row = Record<string, unknown>;
 
@@ -48,6 +49,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const labelField = def.labelField;
   const isCustomers = resourceKey === "customers";
   const isEnquiries = resourceKey === "enquiries";
+  const isQuotes = resourceKey === "quotes";
 
   useEffect(() => {
     if (!newParam && !editParam) {
@@ -276,6 +278,79 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       return cols;
     }
 
+    if (isQuotes) {
+      cols.push(
+        {
+          key: "col-customer",
+          header: "Customer",
+          render: (row) => {
+            const name = String(row.customerName || "");
+            const cid = String(row.customerId || "");
+            return (
+              <div className="min-w-0">
+                <div className="truncate text-xs font-medium">
+                  {name || "—"}
+                </div>
+                {cid ? (
+                  <div className="font-mono text-[10px] text-[var(--admin-muted)]">
+                    {cid}
+                  </div>
+                ) : null}
+              </div>
+            );
+          },
+        },
+        {
+          key: "col-issue",
+          header: "Issue date",
+          render: (row) => (
+            <span className="text-xs tabular-nums">
+              {formatDate(
+                (row.issueDate as string | Date | null | undefined) ?? null,
+              )}
+            </span>
+          ),
+        },
+        {
+          key: "col-valid",
+          header: "Valid until",
+          render: (row) => (
+            <span className="text-xs tabular-nums">
+              {formatDate(
+                (row.validUntil as string | Date | null | undefined) ?? null,
+              )}
+            </span>
+          ),
+        },
+        {
+          key: "col-status",
+          header: "Status",
+          render: (row) => {
+            const id = String(row[idField] || "");
+            const value = String(row.status || "Draft");
+            return (
+              <select
+                className="admin-input !w-auto min-w-[7.5rem] !py-1 text-[11px]"
+                value={value}
+                disabled={statusSavingId === id}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  void onInlineFieldChange(row, "status", e.target.value)
+                }
+              >
+                {quoteStatuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            );
+          },
+        },
+      );
+      return cols;
+    }
+
     if (labelField && labelField !== idField) {
       cols.push({
         key: "col-label",
@@ -311,6 +386,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     rows,
     isCustomers,
     isEnquiries,
+    isQuotes,
     statusSavingId,
     onInlineFieldChange,
   ]);
