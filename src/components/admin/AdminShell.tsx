@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AdminThemeProvider } from "./AdminThemeProvider";
 import { AdminSidebar } from "./AdminSidebar";
@@ -15,8 +15,27 @@ export function AdminShell({
   children: React.ReactNode;
   email?: string;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
+
+  // On small screens start closed; keep desktop open by default after mount
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setSidebarOpen(mq.matches);
+    function onChange(e: MediaQueryListEvent) {
+      setSidebarOpen(e.matches);
+    }
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // Close mobile drawer on navigation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      setSidebarOpen(false);
+    }
+  }, [pathname]);
 
   const { title, subtitle } = useMemo(() => {
     for (const group of ADMIN_NAV) {
@@ -39,18 +58,33 @@ export function AdminShell({
     return { title: "Admin", subtitle: "Rajput Events" };
   }, [pathname]);
 
+  function toggleSidebar() {
+    setSidebarOpen((v) => !v);
+  }
+
   return (
     <AdminThemeProvider>
-      <div className="admin-root flex min-h-screen">
-        <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <AdminTopbar
-            title={title}
-            subtitle={subtitle}
-            email={email}
-            onMenuClick={() => setSidebarOpen(true)}
+      <div className="admin-root flex h-dvh flex-col overflow-hidden">
+        <AdminTopbar
+          title={title}
+          subtitle={subtitle}
+          email={email}
+          sidebarOpen={sidebarOpen}
+          onMenuClick={toggleSidebar}
+        />
+        <div className="relative flex min-h-0 flex-1 overflow-x-hidden">
+          <AdminSidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            onNavigate={() => {
+              if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                setSidebarOpen(false);
+              }
+            }}
           />
-          <main className="flex-1 p-3 lg:p-4">{children}</main>
+          <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 lg:p-4">
+            {children}
+          </main>
         </div>
       </div>
       <AdminToaster />

@@ -198,7 +198,7 @@ body {
   font-family: var(--font-admin), system-ui, sans-serif;
   background: var(--admin-bg);
   color: var(--admin-text);
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 html[data-admin-theme="dark"] .admin-root {
@@ -353,4 +353,32 @@ html[data-admin-theme="dark"] .admin-badge-gray {
 html[data-admin-theme="dark"] .admin-badge-blue {
   background: #1e3a8a;
   color: #bfdbfe;
+}
+
+.admin-sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--admin-sidebar-muted) 55%, transparent)
+    transparent;
+}
+
+.admin-sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar-nav::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--admin-sidebar-muted) 45%, transparent);
+  border-radius: 999px;
+}
+
+.admin-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--admin-sidebar-muted) 70%, transparent);
+}
+
+.admin-topbar {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
 }
