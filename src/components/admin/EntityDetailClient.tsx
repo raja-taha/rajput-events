@@ -332,16 +332,22 @@ export function EntityDetailClient({
                 />
               ) : null}
 
-              {(doc.createdAt || doc.updatedAt) && (
+              {Boolean(doc.createdAt || doc.updatedAt) && (
                 <div className="border-t border-[var(--admin-border)] pt-4 text-[11px] text-[var(--admin-muted)]">
                   {doc.createdAt ? (
-                    <span>Created {formatDateTime(doc.createdAt as string)}</span>
+                    <span>
+                      Created{" "}
+                      {formatDateTime(doc.createdAt as string | Date)}
+                    </span>
                   ) : null}
                   {doc.createdAt && doc.updatedAt ? (
                     <span className="mx-2">·</span>
                   ) : null}
                   {doc.updatedAt ? (
-                    <span>Updated {formatDateTime(doc.updatedAt as string)}</span>
+                    <span>
+                      Updated{" "}
+                      {formatDateTime(doc.updatedAt as string | Date)}
+                    </span>
                   ) : null}
                 </div>
               )}

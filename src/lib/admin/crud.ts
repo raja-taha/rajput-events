@@ -238,7 +238,7 @@ export async function crudUnarchive(
   });
   await existing.save();
   await writeAudit({
-    action: "unarchive",
+    action: "restore",
     resource: def.resource,
     resourceId: String(existing._id),
     businessId,
