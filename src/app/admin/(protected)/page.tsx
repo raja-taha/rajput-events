@@ -107,22 +107,22 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Rajput Events Dashboard</h2>
-          <p className="text-sm text-[var(--admin-muted)]">
+          <h2 className="text-base font-bold tracking-tight">Rajput Events Dashboard</h2>
+          <p className="text-[11px] text-[var(--admin-muted)]">
             Operations, events, cash and follow-ups at a glance · As of {data.asOf}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/admin/enquiries/new" className="admin-btn admin-btn-primary">
+          <Link href="/admin/enquiries?new=1" className="admin-btn admin-btn-primary">
             New enquiry
           </Link>
-          <Link href="/admin/customers/new" className="admin-btn admin-btn-ghost">
+          <Link href="/admin/customers?new=1" className="admin-btn admin-btn-ghost">
             New customer
           </Link>
-          <Link href="/admin/payments/new" className="admin-btn admin-btn-ghost">
+          <Link href="/admin/payments?new=1" className="admin-btn admin-btn-ghost">
             Record payment
           </Link>
         </div>

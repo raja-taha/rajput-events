@@ -1,7 +1,5 @@
-import { EntityFormClient } from "@/components/admin/EntityFormClient";
-
-export const metadata = { title: "New" };
+import { RedirectToListModal } from "@/components/admin/RedirectToListModal";
 
 export default function Page() {
-  return <EntityFormClient resourceKey="event-briefs" />;
+  return <RedirectToListModal resourceKey="event-briefs" mode="new" />;
 }

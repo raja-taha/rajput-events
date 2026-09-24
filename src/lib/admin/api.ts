@@ -59,13 +59,16 @@ export function parseListParams(url: URL) {
   const page = Math.max(1, Number(url.searchParams.get("page") || 1));
   const pageSize = Math.min(
     100,
-    Math.max(1, Number(url.searchParams.get("pageSize") || 25)),
+    Math.max(1, Number(url.searchParams.get("pageSize") || 10)),
   );
   const search = (url.searchParams.get("search") || "").trim();
-  const sortRaw = url.searchParams.get("sort") || "createdAt:desc";
-  const [sortField, sortDir] = sortRaw.split(":");
-  const sort: Record<string, 1 | -1> = {
-    [sortField || "createdAt"]: sortDir === "asc" ? 1 : -1,
-  };
+  const sortRaw = url.searchParams.get("sort") || "";
+  let sort: Record<string, 1 | -1> = { createdAt: -1 };
+  if (sortRaw) {
+    const [sortField, sortDir] = sortRaw.split(":");
+    sort = {
+      [sortField || "createdAt"]: sortDir === "desc" ? -1 : 1,
+    };
+  }
   return { page, pageSize, search, sort, skip: (page - 1) * pageSize };
 }

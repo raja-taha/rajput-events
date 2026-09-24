@@ -72,9 +72,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={`${cinzel.variable} ${montserrat.variable} ${cormorant.variable} ${jakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-navy text-ivory font-[family-name:var(--font-body)]">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-navy text-ivory font-[family-name:var(--font-body)]"
+      >
         {children}
       </body>
     </html>

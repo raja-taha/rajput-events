@@ -1,8 +1,14 @@
-import { EntityFormClient } from "@/components/admin/EntityFormClient";
+import { RedirectToListModal } from "@/components/admin/RedirectToListModal";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
-  return <EntityFormClient resourceKey="changes" businessId={decodeURIComponent(id)} />;
+  return (
+    <RedirectToListModal
+      resourceKey="changes"
+      mode="edit"
+      id={decodeURIComponent(id)}
+    />
+  );
 }

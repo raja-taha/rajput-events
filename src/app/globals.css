@@ -222,7 +222,7 @@ html[data-admin-theme="dark"] .admin-root {
 .admin-card {
   background: var(--admin-surface);
   border: 1px solid var(--admin-border);
-  border-radius: 14px;
+  border-radius: 10px;
   box-shadow: var(--admin-shadow);
 }
 
@@ -231,27 +231,27 @@ html[data-admin-theme="dark"] .admin-root {
   border: 1px solid var(--admin-border);
   background: var(--admin-surface);
   color: var(--admin-text);
-  border-radius: 10px;
-  padding: 0.7rem 0.85rem;
-  font-size: 0.925rem;
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.75rem;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-input:focus {
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-primary) 22%, transparent);
 }
 
 .admin-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  border-radius: 10px;
-  padding: 0.65rem 1rem;
+  gap: 0.35rem;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 }
 
@@ -278,23 +278,23 @@ html[data-admin-theme="dark"] .admin-root {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
 }
 
 .admin-table th {
   text-align: left;
-  font-size: 0.72rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--admin-muted);
   font-weight: 600;
-  padding: 0.75rem 0.9rem;
+  padding: 0.45rem 0.65rem;
   border-bottom: 1px solid var(--admin-border);
   background: var(--admin-surface-2);
 }
 
 .admin-table td {
-  padding: 0.85rem 0.9rem;
+  padding: 0.45rem 0.65rem;
   border-bottom: 1px solid var(--admin-border);
   vertical-align: middle;
 }
@@ -307,8 +307,8 @@ html[data-admin-theme="dark"] .admin-root {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 0.2rem 0.55rem;
-  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 }

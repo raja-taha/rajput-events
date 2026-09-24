@@ -21,7 +21,12 @@ async function parseJson<T>(res: Response): Promise<T> {
 
 export async function fetchList<T>(
   resource: string,
-  params: { page?: number; pageSize?: number; search?: string; sort?: string } = {},
+  params: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    sort?: string;
+  } = {},
 ): Promise<ListResponse<T>> {
   const q = new URLSearchParams();
   if (params.page) q.set("page", String(params.page));

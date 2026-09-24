@@ -49,33 +49,33 @@ export function AdminTopbar({ title, subtitle, email, onMenuClick }: Props) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--admin-border)] bg-[color-mix(in_srgb,var(--admin-surface)_92%,transparent)] backdrop-blur-md">
-      <div className="flex items-center gap-3 px-4 py-3 lg:px-6">
+      <div className="flex items-center gap-2 px-3 py-2 lg:px-4">
         <button
           type="button"
           onClick={onMenuClick}
-          className="admin-btn admin-btn-ghost lg:hidden !p-2"
+          className="admin-btn admin-btn-ghost lg:hidden !p-1.5"
           aria-label="Open menu"
         >
-          <Menu size={18} />
+          <Menu size={16} />
         </button>
 
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-bold tracking-tight lg:text-xl">{title}</h1>
+          <h1 className="truncate text-sm font-bold tracking-tight lg:text-base">{title}</h1>
           {subtitle ? (
-            <p className="truncate text-xs text-[var(--admin-muted)]">{subtitle}</p>
+            <p className="truncate text-[10px] text-[var(--admin-muted)]">{subtitle}</p>
           ) : null}
         </div>
 
-        <form onSubmit={onSearch} className="relative hidden md:block w-64 lg:w-80">
+        <form onSubmit={onSearch} className="relative hidden md:block w-56 lg:w-72">
           <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--admin-muted)]"
+            size={14}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--admin-muted)]"
           />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search customers, events, IDs…"
-            className="admin-input !pl-9"
+            className="admin-input !pl-8"
           />
         </form>
 
@@ -85,22 +85,22 @@ export function AdminTopbar({ title, subtitle, email, onMenuClick }: Props) {
             className="admin-btn admin-btn-primary"
             onClick={() => setQuickOpen((v) => !v)}
           >
-            <Plus size={16} />
+            <Plus size={14} />
             <span className="hidden sm:inline">Quick add</span>
           </button>
           {quickOpen ? (
-            <div className="absolute right-0 mt-2 w-52 admin-card overflow-hidden z-40">
+            <div className="absolute right-0 z-40 mt-1.5 w-48 overflow-hidden admin-card">
               {[
-                ["/admin/enquiries/new", "New enquiry"],
-                ["/admin/customers/new", "New customer"],
-                ["/admin/vendors/new", "New vendor"],
-                ["/admin/quotes/new", "Create quote"],
-                ["/admin/payments/new", "Record payment"],
+                ["/admin/enquiries?new=1", "New enquiry"],
+                ["/admin/customers?new=1", "New customer"],
+                ["/admin/vendors?new=1", "New vendor"],
+                ["/admin/quotes?new=1", "Create quote"],
+                ["/admin/payments?new=1", "Record payment"],
               ].map(([href, label]) => (
                 <Link
                   key={href}
                   href={href}
-                  className="block px-4 py-2.5 text-sm hover:bg-[var(--admin-surface-2)]"
+                  className="block px-3 py-1.5 text-xs hover:bg-[var(--admin-surface-2)]"
                   onClick={() => setQuickOpen(false)}
                 >
                   {label}

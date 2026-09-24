@@ -56,7 +56,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   quotes: {
     key: "quotes",
     businessIdField: "quoteId",
-    labelField: "quoteId",
+    labelField: "customerId",
     title: "Quotes",
     singular: "Quote",
     adminPath: "quotes",
@@ -88,7 +88,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   changes: {
     key: "changes",
     businessIdField: "changeId",
-    labelField: "changeId",
+    labelField: "requestedChange",
     title: "Change orders",
     singular: "Change order",
     adminPath: "changes",
@@ -96,7 +96,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   feedback: {
     key: "feedback",
     businessIdField: "feedbackId",
-    labelField: "feedbackId",
+    labelField: "eventId",
     title: "Feedback",
     singular: "Feedback",
     adminPath: "feedback",
@@ -112,7 +112,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   "vendor-orders": {
     key: "vendor-orders",
     businessIdField: "poId",
-    labelField: "poId",
+    labelField: "scopeSpecification",
     title: "Vendor orders",
     singular: "Vendor order",
     adminPath: "vendor-orders",
@@ -136,7 +136,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   handovers: {
     key: "handovers",
     businessIdField: "handoverId",
-    labelField: "handoverId",
+    labelField: "itemId",
     title: "Handovers",
     singular: "Handover",
     adminPath: "handovers",
@@ -144,7 +144,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   invoices: {
     key: "invoices",
     businessIdField: "invoiceId",
-    labelField: "invoiceId",
+    labelField: "milestone",
     title: "Invoices",
     singular: "Invoice",
     adminPath: "invoices",
@@ -152,7 +152,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   payments: {
     key: "payments",
     businessIdField: "transactionId",
-    labelField: "transactionId",
+    labelField: "transactionType",
     title: "Payments",
     singular: "Payment",
     adminPath: "payments",

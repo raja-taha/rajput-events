@@ -79,43 +79,43 @@ export function AdminSidebar({ open, onClose }: Props) {
       />
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex w-[270px] flex-col border-r border-white/5 transition-transform lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col border-r border-white/5 transition-transform lg:static lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
         style={{ background: "var(--admin-sidebar)", color: "var(--admin-sidebar-text)" }}
       >
-        <div className="flex items-center justify-between gap-3 px-5 py-5 border-b border-white/10">
-          <Link href="/admin" className="flex items-center gap-3" onClick={onClose}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-400/15 text-sky-300 font-bold">
+        <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-3">
+          <Link href="/admin" className="flex items-center gap-2" onClick={onClose}>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-400/15 text-xs font-bold text-sky-300">
               RE
             </div>
             <div>
-              <div className="text-sm font-bold tracking-wide">Rajput Events</div>
-              <div className="text-[11px]" style={{ color: "var(--admin-sidebar-muted)" }}>
-                Operations Console
+              <div className="text-xs font-bold tracking-wide">Rajput Events</div>
+              <div className="text-[10px]" style={{ color: "var(--admin-sidebar-muted)" }}>
+                Operations
               </div>
             </div>
           </Link>
           <button
             type="button"
-            className="lg:hidden rounded-lg p-2 hover:bg-white/10"
+            className="rounded-lg p-1.5 hover:bg-white/10 lg:hidden"
             onClick={onClose}
             aria-label="Close sidebar"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <nav className="flex-1 space-y-3 overflow-y-auto px-2 py-3">
           {ADMIN_NAV.map((group) => (
             <div key={group.label}>
               <div
-                className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-[0.14em]"
+                className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-[0.12em]"
                 style={{ color: "var(--admin-sidebar-muted)" }}
               >
                 {group.label}
               </div>
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = ICONS[item.icon] || LayoutDashboard;
                   const active =
@@ -128,9 +128,9 @@ export function AdminSidebar({ open, onClose }: Props) {
                         href={item.href}
                         onClick={onClose}
                         className={clsx(
-                          "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                          "flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors",
                           active
-                            ? "bg-sky-400/15 text-white font-semibold"
+                            ? "bg-sky-400/15 font-semibold text-white"
                             : "hover:bg-white/5",
                         )}
                         style={
@@ -139,7 +139,7 @@ export function AdminSidebar({ open, onClose }: Props) {
                             : undefined
                         }
                       >
-                        <Icon size={16} className={active ? "text-sky-300" : "opacity-70"} />
+                        <Icon size={14} className={active ? "text-sky-300" : "opacity-70"} />
                         <span>{item.label}</span>
                       </Link>
                     </li>

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { PageHeader } from "./PageHeader";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { RelationSearchSelect } from "./RelationSearchSelect";
 import {
   archiveOne,
   createOne,
@@ -25,13 +25,26 @@ function FieldInput({
   value: string;
   onChange: (v: string) => void;
 }) {
+  if (field.type === "relation" && field.relation) {
+    return (
+      <RelationSearchSelect
+        resource={field.relation}
+        value={value}
+        onChange={onChange}
+        required={field.required}
+        placeholder={`Select ${field.label.toLowerCase()}…`}
+      />
+    );
+  }
+
   const common = {
     id: field.name,
     name: field.name,
     className: "admin-input w-full",
     value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      onChange(e.target.value),
+    onChange: (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    ) => onChange(e.target.value),
     required: field.required,
   };
   if (field.type === "textarea") {
@@ -42,7 +55,9 @@ function FieldInput({
       <select {...common}>
         <option value="">—</option>
         {field.options.map((o) => (
-          <option key={o} value={o}>{o}</option>
+          <option key={o} value={o}>
+            {o}
+          </option>
         ))}
       </select>
     );
@@ -74,6 +89,7 @@ function parsePayload(fields: FieldDef[], form: Record<string, string>) {
   return out;
 }
 
+/** Fallback full-page form; list pages prefer EntityFormModal. */
 export function EntityFormClient({
   resourceKey,
   businessId,
@@ -106,7 +122,7 @@ export function EntityFormClient({
         }
         setForm(next);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load");
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -114,9 +130,9 @@ export function EntityFormClient({
     return () => {
       cancelled = true;
     };
-  }, [resourceKey, businessId, isNew, fields]);
+  }, [isNew, businessId, resourceKey, fields]);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
@@ -125,88 +141,97 @@ export function EntityFormClient({
       if (isNew) {
         const created = await createOne<Record<string, unknown>>(resourceKey, payload);
         const id = String(created[def.businessIdField]);
-        router.push(`/admin/${meta.adminPath}/${encodeURIComponent(id)}`);
+        router.replace(`/admin/${meta.adminPath}?edit=${encodeURIComponent(id)}`);
       } else {
         await updateOne(resourceKey, businessId!, payload);
-        router.refresh();
+        router.replace(`/admin/${meta.adminPath}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const onArchive = async () => {
+  async function onArchive() {
     if (!businessId) return;
     setSaving(true);
     try {
       await archiveOne(resourceKey, businessId);
-      router.push(`/admin/${meta.adminPath}`);
+      router.replace(`/admin/${meta.adminPath}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Archive failed");
     } finally {
       setSaving(false);
       setConfirmArchive(false);
     }
-  };
-
-  if (loading) {
-    return <p className="text-[var(--admin-muted)]">Loading…</p>;
   }
 
   return (
     <>
       <PageHeader
         title={isNew ? `New ${meta.singular}` : `Edit ${meta.singular}`}
-        description={
-          isNew
-            ? `Create a new ${meta.singular.toLowerCase()} record.`
-            : String(businessId)
-        }
+        description={businessId || undefined}
+        actionHref={`/admin/${meta.adminPath}`}
+        actionLabel="Back to list"
       />
-      <div className="admin-card max-w-3xl p-6">
-        {error ? <p className="mb-4 text-sm text-[var(--admin-danger)]">{error}</p> : null}
-        <form onSubmit={onSubmit} className="space-y-4">
-          {fields.map((field) => (
-            <div key={field.name}>
-              <label
-                htmlFor={field.name}
-                className="mb-1 block text-sm font-medium text-[var(--admin-text)]"
+      {loading ? (
+        <p className="text-xs text-[var(--admin-muted)]">Loading…</p>
+      ) : (
+        <form onSubmit={onSubmit} className="admin-card max-w-3xl p-4">
+          {error ? (
+            <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-700">
+              {error}
+            </p>
+          ) : null}
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {fields.map((field) => (
+              <div
+                key={field.name}
+                className={
+                  field.type === "textarea" || field.type === "relation"
+                    ? "sm:col-span-2"
+                    : undefined
+                }
               >
-                {field.label}
-                {field.required ? " *" : ""}
-              </label>
-              <FieldInput
-                field={field}
-                value={form[field.name] ?? ""}
-                onChange={(v) => setForm((prev) => ({ ...prev, [field.name]: v }))}
-              />
+                <label
+                  htmlFor={field.name}
+                  className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide text-[var(--admin-muted)]"
+                >
+                  {field.label}
+                  {field.required ? " *" : ""}
+                </label>
+                <FieldInput
+                  field={field}
+                  value={form[field.name] ?? ""}
+                  onChange={(v) => setForm((prev) => ({ ...prev, [field.name]: v }))}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              {!isNew ? (
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-ghost text-[var(--admin-danger)]"
+                  onClick={() => setConfirmArchive(true)}
+                  disabled={saving}
+                >
+                  Archive
+                </button>
+              ) : null}
             </div>
-          ))}
-          <div className="flex flex-wrap gap-2 pt-4">
             <button type="submit" className="admin-btn admin-btn-primary" disabled={saving}>
-              {saving ? "Saving…" : isNew ? "Create" : "Save changes"}
+              {saving ? "Saving…" : isNew ? "Create" : "Save"}
             </button>
-            <Link href={`/admin/${meta.adminPath}`} className="admin-btn admin-btn-ghost">
-              Cancel
-            </Link>
-            {!isNew ? (
-              <button
-                type="button"
-                className="admin-btn admin-btn-ghost text-[var(--admin-danger)]"
-                onClick={() => setConfirmArchive(true)}
-              >
-                Archive
-              </button>
-            ) : null}
           </div>
         </form>
-      </div>
+      )}
       <ConfirmDialog
         open={confirmArchive}
         title="Archive record?"
-        message="This record will be archived (soft delete). You can restore it later from the database if needed."
+        message="This record will be archived (soft delete)."
         confirmLabel="Archive"
         destructive
         onConfirm={() => void onArchive()}

@@ -15,9 +15,10 @@ import {
 export type FieldDef = {
   name: string;
   label: string;
-  type?: "text" | "email" | "number" | "date" | "textarea" | "select";
+  type?: "text" | "email" | "number" | "date" | "textarea" | "select" | "relation";
   required?: boolean;
   options?: readonly string[];
+  relation?: ResourceKey;
 };
 
 export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
@@ -32,7 +33,13 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "notes", label: "Notes", type: "textarea" },
   ],
   enquiries: [
-    { name: "customerId", label: "Customer ID", required: true },
+    {
+      name: "customerId",
+      label: "Customer",
+      type: "relation",
+      relation: "customers",
+      required: true,
+    },
     { name: "eventType", label: "Event type", type: "select", options: eventTypes },
     { name: "occasionTitle", label: "Occasion title" },
     { name: "preferredDate", label: "Preferred date", type: "date" },
@@ -44,8 +51,8 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "conversationNotes", label: "Notes", type: "textarea" },
   ],
   "event-briefs": [
-    { name: "enquiryId", label: "Enquiry ID" },
-    { name: "eventId", label: "Event ID" },
+    { name: "enquiryId", label: "Enquiry", type: "relation", relation: "enquiries" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "themeVision", label: "Theme / vision", type: "textarea" },
     { name: "colours", label: "Colours" },
     { name: "mustHaveElements", label: "Must-haves", type: "textarea" },
@@ -54,8 +61,8 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "notes", label: "Notes", type: "textarea" },
   ],
   quotes: [
-    { name: "customerId", label: "Customer ID" },
-    { name: "enquiryId", label: "Enquiry ID" },
+    { name: "customerId", label: "Customer", type: "relation", relation: "customers" },
+    { name: "enquiryId", label: "Enquiry", type: "relation", relation: "enquiries" },
     { name: "issueDate", label: "Issue date", type: "date" },
     { name: "validUntil", label: "Valid until", type: "date" },
     { name: "status", label: "Status", type: "select", options: quoteStatuses },
@@ -74,19 +81,24 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "pricingNotes", label: "Pricing notes", type: "textarea" },
   ],
   bookings: [
-    { name: "customerId", label: "Customer ID" },
-    { name: "enquiryId", label: "Enquiry ID" },
+    { name: "customerId", label: "Customer", type: "relation", relation: "customers" },
+    { name: "enquiryId", label: "Enquiry", type: "relation", relation: "enquiries" },
     { name: "eventTitle", label: "Event title", required: true },
     { name: "eventType", label: "Event type", type: "select", options: eventTypes },
     { name: "eventDate", label: "Event date", type: "date" },
     { name: "guestCount", label: "Guests", type: "number" },
-    { name: "venueId", label: "Venue ID" },
-    { name: "acceptedQuoteId", label: "Accepted quote ID" },
+    { name: "venueId", label: "Venue", type: "relation", relation: "venues" },
+    {
+      name: "acceptedQuoteId",
+      label: "Accepted quote",
+      type: "relation",
+      relation: "quotes",
+    },
     { name: "stage", label: "Stage", type: "select", options: bookingStages },
     { name: "notes", label: "Notes", type: "textarea" },
   ],
   tasks: [
-    { name: "eventId", label: "Event ID" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "phase", label: "Phase" },
     { name: "taskActivityCue", label: "Task", required: true, type: "textarea" },
     { name: "responsiblePerson", label: "Owner" },
@@ -95,13 +107,19 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "priority", label: "Priority", type: "select", options: taskPriorities },
   ],
   changes: [
-    { name: "eventId", label: "Event ID", required: true },
+    {
+      name: "eventId",
+      label: "Event",
+      type: "relation",
+      relation: "bookings",
+      required: true,
+    },
     { name: "requestedChange", label: "Requested change", type: "textarea", required: true },
     { name: "feeChangeExclTax", label: "Fee change (excl. tax)", type: "number" },
     { name: "implementationStatus", label: "Implementation status" },
   ],
   feedback: [
-    { name: "eventId", label: "Event ID" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "overallRating", label: "Rating (1-5)", type: "number" },
     { name: "whatWorkedWell", label: "What worked well", type: "textarea" },
     { name: "whatToImproveOpenIssues", label: "Improvements / issues", type: "textarea" },
@@ -117,11 +135,24 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "notesIssues", label: "Notes", type: "textarea" },
   ],
   "vendor-orders": [
-    { name: "eventId", label: "Event ID", required: true },
-    { name: "vendorId", label: "Vendor ID", required: true },
-    { name: "orderDate", label: "Order date", type: "date" },
+    {
+      name: "eventId",
+      label: "Event",
+      type: "relation",
+      relation: "bookings",
+      required: true,
+    },
+    {
+      name: "vendorId",
+      label: "Vendor",
+      type: "relation",
+      relation: "vendors",
+      required: true,
+    },
+    { name: "scopeSpecification", label: "Scope", type: "textarea" },
+    { name: "quantity", label: "Quantity", type: "number" },
+    { name: "unitRate", label: "Unit rate", type: "number" },
     { name: "status", label: "Status" },
-    { name: "totalAmount", label: "Total", type: "number" },
   ],
   venues: [
     { name: "venueName", label: "Venue name", required: true },
@@ -139,14 +170,25 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "storageLocation", label: "Storage" },
   ],
   handovers: [
-    { name: "eventId", label: "Event ID", required: true },
-    { name: "itemId", label: "Item ID" },
-    { name: "handoverType", label: "Type" },
+    {
+      name: "eventId",
+      label: "Event",
+      type: "relation",
+      relation: "bookings",
+      required: true,
+    },
+    { name: "itemId", label: "Item", type: "relation", relation: "inventory" },
+    { name: "quantityOut", label: "Qty out", type: "number" },
     { name: "conditionOut", label: "Condition out" },
-    { name: "conditionIn", label: "Condition in" },
   ],
   invoices: [
-    { name: "eventId", label: "Event ID", required: true },
+    {
+      name: "eventId",
+      label: "Event",
+      type: "relation",
+      relation: "bookings",
+      required: true,
+    },
     { name: "milestone", label: "Milestone" },
     { name: "issueDate", label: "Issue date", type: "date" },
     { name: "dueDate", label: "Due date", type: "date" },
@@ -154,16 +196,18 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "amountBilledInclTax", label: "Amount incl. tax", type: "number" },
   ],
   payments: [
-    { name: "eventId", label: "Event ID" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "transactionDate", label: "Date", type: "date" },
     { name: "transactionType", label: "Type" },
+    { name: "invoiceId", label: "Invoice", type: "relation", relation: "invoices" },
+    { name: "poId", label: "PO", type: "relation", relation: "vendor-orders" },
     { name: "payerPayee", label: "Payer / payee" },
     { name: "method", label: "Method" },
     { name: "amount", label: "Amount", type: "number", required: true },
     { name: "clearance", label: "Clearance" },
   ],
   expenses: [
-    { name: "eventId", label: "Event ID" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "recordedOn", label: "Recorded on", type: "date" },
     { name: "description", label: "Description", required: true },
     { name: "actualAgreedCost", label: "Actual cost", type: "number" },
@@ -172,7 +216,7 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
   documents: [
     { name: "documentCheck", label: "Document / check", required: true },
     { name: "scope", label: "Scope" },
-    { name: "eventId", label: "Event ID" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "status", label: "Status" },
     { name: "responsiblePerson", label: "Responsible" },
     { name: "notesTemplateFilename", label: "Notes / filename", type: "textarea" },
@@ -180,6 +224,7 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
   marketing: [
     { name: "platform", label: "Platform" },
     { name: "contentType", label: "Content type" },
+    { name: "eventId", label: "Event", type: "relation", relation: "bookings" },
     { name: "postTopicCaption", label: "Caption / topic", type: "textarea" },
     { name: "status", label: "Status" },
     { name: "plannedPublishDate", label: "Planned date", type: "date" },

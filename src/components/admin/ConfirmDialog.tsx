@@ -39,10 +39,10 @@ export function ConfirmDialog({
         onCancel();
       }}
     >
-      <div className="p-6">
-        <h2 className="text-lg font-semibold text-[var(--admin-text)]">{title}</h2>
-        <p className="mt-2 text-sm text-[var(--admin-muted)]">{message}</p>
-        <div className="mt-6 flex justify-end gap-2">
+      <div className="p-4">
+        <h2 className="text-sm font-semibold text-[var(--admin-text)]">{title}</h2>
+        <p className="mt-1.5 text-xs text-[var(--admin-muted)]">{message}</p>
+        <div className="mt-4 flex justify-end gap-2">
           <button type="button" className="admin-btn admin-btn-ghost" onClick={onCancel}>
             {cancelLabel}
           </button>

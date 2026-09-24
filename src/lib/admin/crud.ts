@@ -73,10 +73,15 @@ export async function crudList(request: NextRequest, def: ResourceDef) {
   const { page, pageSize, search, sort, skip } = parseListParams(url);
   const includeArchived = url.searchParams.get("archived") === "1";
   const filter = buildSearchFilter(search, def.searchFields, includeArchived);
+  // Default: sort by permanent business ID ascending
+  const effectiveSort =
+    url.searchParams.get("sort") != null
+      ? sort
+      : ({ [def.businessIdField]: 1 } as Record<string, 1 | -1>);
   const [data, total] = await Promise.all([
     def.model
       .find(filter)
-      .sort(sort)
+      .sort(effectiveSort)
       .skip(skip)
       .limit(pageSize)
       .lean(),

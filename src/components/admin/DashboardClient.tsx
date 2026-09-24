@@ -179,11 +179,11 @@ export function DashboardClient() {
           <h2 className="mb-4 font-semibold text-[var(--admin-text)]">Quick actions</h2>
           <div className="flex flex-wrap gap-2">
             {[
-              ["/admin/enquiries/new", "New enquiry"],
-              ["/admin/customers/new", "New customer"],
-              ["/admin/vendors/new", "New vendor"],
-              ["/admin/quotes/new", "Create quote"],
-              ["/admin/payments/new", "Record payment"],
+              ["/admin/enquiries?new=1", "New enquiry"],
+              ["/admin/customers?new=1", "New customer"],
+              ["/admin/vendors?new=1", "New vendor"],
+              ["/admin/quotes?new=1", "Create quote"],
+              ["/admin/payments?new=1", "Record payment"],
             ].map(([href, label]) => (
               <Link key={href} href={href} className="admin-btn admin-btn-primary">
                 {label}

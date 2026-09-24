@@ -59,7 +59,16 @@ export function createResourceHandlers(config: ResourceConfig) {
     }
 
     const [data, total] = await Promise.all([
-      config.model.find(filter).sort(sort).skip(skip).limit(pageSize).lean(),
+      config.model
+        .find(filter)
+        .sort(
+          Object.keys(sort).length && url.searchParams.get("sort")
+            ? sort
+            : { [config.idField]: 1 },
+        )
+        .skip(skip)
+        .limit(pageSize)
+        .lean(),
       config.model.countDocuments(filter),
     ]);
 
@@ -112,9 +121,7 @@ export function createResourceByIdHandlers(config: ResourceConfig) {
     await connectMongo();
     const { id } = await context.params;
     const doc = await config.model
-      .findOne({
-        $or: [{ [config.idField]: id }, { _id: id }],
-      })
+      .findOne({ [config.idField]: id })
       .lean();
     if (!doc) return notFound();
     return ok(doc);
@@ -140,12 +147,12 @@ export function createResourceByIdHandlers(config: ResourceConfig) {
     delete body._id;
 
     const before = await config.model
-      .findOne({ $or: [{ [config.idField]: id }, { _id: id }] })
+      .findOne({ [config.idField]: id })
       .lean();
     if (!before) return notFound();
 
     const doc = await config.model.findOneAndUpdate(
-      { $or: [{ [config.idField]: id }, { _id: id }] },
+      { [config.idField]: id },
       { ...body, updatedBy: "env-admin" },
       { new: true },
     );
@@ -171,7 +178,7 @@ export function createResourceByIdHandlers(config: ResourceConfig) {
     const { id } = await context.params;
 
     const doc = await config.model.findOneAndUpdate(
-      { $or: [{ [config.idField]: id }, { _id: id }] },
+      { [config.idField]: id },
       {
         archivedAt: new Date(),
         archivedBy: "env-admin",

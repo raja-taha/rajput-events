@@ -49,7 +49,7 @@ export function AdminShell({
             email={email}
             onMenuClick={() => setSidebarOpen(true)}
           />
-          <main className="flex-1 p-4 lg:p-6">{children}</main>
+          <main className="flex-1 p-3 lg:p-4">{children}</main>
         </div>
       </div>
     </AdminThemeProvider>
