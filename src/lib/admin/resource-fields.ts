@@ -82,7 +82,7 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "taxAmount", label: "Tax amount (PKR)", type: "number" },
     {
       name: "bookingAdvancePercent",
-      label: "Advance rate (0–1, e.g. 0.6)",
+      label: "Advance rate %",
       type: "number",
     },
     { name: "scopeAndExclusions", label: "Scope & exclusions", type: "textarea" },

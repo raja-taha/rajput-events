@@ -154,7 +154,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     const cols: TableColumn<Row>[] = [
       {
         key: "col-id",
-        header: "ID",
+      header: "ID",
         render: (row) => (
           <span className="font-mono text-[11px]">{String(row[idField] ?? "—")}</span>
         ),
@@ -793,9 +793,9 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             <span className="text-xs tabular-nums">
               {String(row.managerMobile || "—")}
             </span>
-          ),
-        },
-        {
+      ),
+    },
+    {
           key: "col-capacity",
           header: "Capacity",
           render: (row) => {
@@ -814,7 +814,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     if (labelField && labelField !== idField) {
       cols.push({
         key: "col-label",
-        header: "Name",
+      header: "Name",
         render: (row) => {
           const value = row[labelField];
           const text = value == null || value === "" ? "—" : String(value);

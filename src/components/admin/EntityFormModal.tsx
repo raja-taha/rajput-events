@@ -139,7 +139,7 @@ export function EntityFormModal({
         }
       }
       if (resourceKey === "quotes") {
-        defaults.bookingAdvancePercent = defaults.bookingAdvancePercent || "0.6";
+        defaults.bookingAdvancePercent = defaults.bookingAdvancePercent || "60";
         defaults.discount = defaults.discount || "0";
         defaults.taxAmount = defaults.taxAmount || "0";
       }
@@ -159,6 +159,15 @@ export function EntityFormModal({
           let value = toFormValue(doc[f.name]);
           if (!value && f.type === "select" && f.options?.length) {
             value = f.options[0];
+          }
+          if (
+            f.name === "bookingAdvancePercent" &&
+            resourceKey === "quotes" &&
+            value !== ""
+          ) {
+            value = String(
+              Math.round(normalizeAdvanceRate(Number(value)) * 100),
+            );
           }
           next[f.name] = value;
         }

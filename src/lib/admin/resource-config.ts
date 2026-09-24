@@ -56,7 +56,7 @@ export const RESOURCE_META: Record<ResourceKey, ResourceMeta> = {
   quotes: {
     key: "quotes",
     businessIdField: "quoteId",
-    labelField: "customerId",
+    labelField: "quoteId",
     title: "Quotes",
     singular: "Quote",
     adminPath: "quotes",

@@ -9,8 +9,10 @@ import { EntityFormModal } from "./EntityFormModal";
 import { StatusBadge } from "./StatusBadge";
 import { RelationLink } from "./RelationLink";
 import { MoneyText } from "./MoneyText";
+import { QuoteDetailPanel } from "./QuoteDetailPanel";
 import { archiveOne, getOne } from "@/lib/admin/client-api";
 import { formatDate, formatDateTime } from "@/lib/admin/dates";
+import { normalizeAdvanceRate } from "@/lib/admin/quote-totals";
 import {
   adminResourceHref,
   type DetailPageResource,
@@ -25,9 +27,13 @@ import {
 type Row = Record<string, unknown>;
 
 function isMoneyField(name: string) {
-  return /amount|fee|budget|rental|deposit|discount|tax|rate|price|total/i.test(
-    name,
-  );
+  if (name === "bookingAdvancePercent") return false;
+  return /amount|fee|budget|rental|deposit|discount|tax|price|total/i.test(name);
+}
+
+function formatAdvancePercent(value: unknown): string {
+  const rate = normalizeAdvanceRate(Number(value));
+  return `${Math.round(rate * 100)}%`;
 }
 
 function isStatusField(name: string) {
@@ -66,6 +72,12 @@ function displayValue(field: FieldDef, value: unknown): ReactNode {
 
   if (field.type === "number" && isMoneyField(field.name)) {
     return <MoneyText amount={Number(value)} className="tabular-nums" />;
+  }
+
+  if (field.name === "bookingAdvancePercent") {
+    return (
+      <span className="tabular-nums">{formatAdvancePercent(value)}</span>
+    );
   }
 
   if (field.type === "number") {
@@ -305,6 +317,19 @@ export function EntityDetailClient({
                     </div>
                   ))}
                 </div>
+              ) : null}
+
+              {resourceKey === "quotes" ? (
+                <QuoteDetailPanel
+                  quoteId={businessId}
+                  discount={Number(doc.discount || 0)}
+                  taxAmount={Number(doc.taxAmount || 0)}
+                  bookingAdvancePercent={
+                    doc.bookingAdvancePercent == null
+                      ? 0.6
+                      : Number(doc.bookingAdvancePercent)
+                  }
+                />
               ) : null}
 
               {(doc.createdAt || doc.updatedAt) && (
