@@ -1,14 +1,13 @@
-import { RedirectToListModal } from "@/components/admin/RedirectToListModal";
+import { EntityDetailClient } from "@/components/admin/EntityDetailClient";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
   return (
-    <RedirectToListModal
+    <EntityDetailClient
       resourceKey="enquiries"
-      mode="edit"
-      id={decodeURIComponent(id)}
+      businessId={decodeURIComponent(id)}
     />
   );
 }

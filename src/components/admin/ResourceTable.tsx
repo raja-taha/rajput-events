@@ -15,6 +15,7 @@ type Props<T extends { [k: string]: unknown }> = {
   rows: T[];
   rowKey: (row: T) => string;
   onRowOpen: (row: T) => void;
+  onRowClick?: (row: T) => void;
   onRowDelete?: (row: T) => void;
   loading?: boolean;
   page: number;
@@ -48,6 +49,7 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
   rows,
   rowKey,
   onRowOpen,
+  onRowClick,
   onRowDelete,
   loading,
   page,
@@ -123,7 +125,10 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
                 return (
                   <tr
                     key={key}
-                    className="border-b border-[var(--admin-border)] hover:bg-[var(--admin-surface-2)]/70"
+                    className={`border-b border-[var(--admin-border)] hover:bg-[var(--admin-surface-2)]/70 ${
+                      onRowClick ? "cursor-pointer" : ""
+                    }`}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
                     {columns.map((col) => (
                       <td
@@ -136,7 +141,10 @@ export function ResourceTable<T extends { [k: string]: unknown }>({
                       </td>
                     ))}
                     <td className="py-1.5 pl-2.5 pr-5 align-middle">
-                      <div className="inline-flex items-center gap-0.5">
+                      <div
+                        className="inline-flex items-center gap-0.5"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           type="button"
                           onClick={() => onRowOpen(row)}

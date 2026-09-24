@@ -8,10 +8,12 @@ import { StatusBadge } from "./StatusBadge";
 import { EntityFormModal } from "./EntityFormModal";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { MoneyText } from "./MoneyText";
+import { RelationLink } from "./RelationLink";
 import { fetchList, updateOne, archiveOne } from "@/lib/admin/client-api";
 import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
-import { customerStatuses, enquiryStages, quoteStatuses, bookingStages, changeImplementationStatuses } from "@/models/enums";
+import { adminResourceHref, hasDetailPage } from "@/lib/admin/detail-pages";
+import { customerStatuses, enquiryStages, quoteStatuses, bookingStages, changeImplementationStatuses, vendorStatuses } from "@/models/enums";
 import { formatDate } from "@/lib/admin/dates";
 import { useAdminPreferences } from "./AdminPreferencesProvider";
 
@@ -59,6 +61,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const isEventBriefs = resourceKey === "event-briefs";
   const isChanges = resourceKey === "changes";
   const isFeedback = resourceKey === "feedback";
+  const isVendors = resourceKey === "vendors";
 
   useEffect(() => {
     if (!newParam && !editParam) {
@@ -237,7 +240,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             return (
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium">
-                  {name || "—"}
+                  <RelationLink resource="customers" id={cid || null} label={name} />
                 </div>
                 {cid ? (
                   <div className="font-mono text-[10px] text-[var(--admin-muted)]">
@@ -312,7 +315,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             return (
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium">
-                  {name || "—"}
+                  <RelationLink resource="customers" id={cid || null} label={name} />
                 </div>
                 {cid ? (
                   <div className="font-mono text-[10px] text-[var(--admin-muted)]">
@@ -385,7 +388,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             return (
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium">
-                  {name || "—"}
+                  <RelationLink resource="customers" id={cid || null} label={name} />
                 </div>
                 {cid ? (
                   <div className="font-mono text-[10px] text-[var(--admin-muted)]">
@@ -441,9 +444,15 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         {
           key: "col-venue",
           header: "Venue",
-          render: (row) => (
-            <span className="text-xs">{String(row.venueName || "—")}</span>
-          ),
+          render: (row) => {
+            const name = String(row.venueName || "");
+            const vid = String(row.venueId || "");
+            return (
+              <span className="text-xs">
+                <RelationLink resource="venues" id={vid || null} label={name} />
+              </span>
+            );
+          },
         },
         {
           key: "col-quoted",
@@ -503,7 +512,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             return (
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium">
-                  {name || "—"}
+                  <RelationLink resource="bookings" id={eid || null} label={name} />
                 </div>
                 {eid ? (
                   <div className="font-mono text-[10px] text-[var(--admin-muted)]">
@@ -588,7 +597,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             return (
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium">
-                  {name || "—"}
+                  <RelationLink resource="bookings" id={eid || null} label={name} />
                 </div>
                 {eid ? (
                   <div className="font-mono text-[10px] text-[var(--admin-muted)]">
@@ -633,7 +642,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
             return (
               <div className="min-w-0">
                 <div className="truncate text-xs font-medium">
-                  {name || "—"}
+                  <RelationLink resource="bookings" id={eid || null} label={name} />
                 </div>
                 {eid ? (
                   <div className="font-mono text-[10px] text-[var(--admin-muted)]">
@@ -662,6 +671,88 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
           render: (row) => (
             <span className="text-xs">{String(row.colours || "—")}</span>
           ),
+        },
+      );
+      return cols;
+    }
+
+    if (isVendors) {
+      cols.push(
+        {
+          key: "col-name",
+          header: "Business name",
+          render: (row) => {
+            const text = String(row.businessName || "—");
+            return (
+              <span className="text-xs">
+                {text.length > 40 ? `${text.slice(0, 40)}…` : text}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-category",
+          header: "Category",
+          render: (row) => (
+            <span className="text-xs">{String(row.category || "—")}</span>
+          ),
+        },
+        {
+          key: "col-contact",
+          header: "Contact",
+          render: (row) => (
+            <span className="text-xs">{String(row.authorizedContact || "—")}</span>
+          ),
+        },
+        {
+          key: "col-mobile",
+          header: "Mobile",
+          render: (row) => (
+            <span className="text-xs tabular-nums">
+              {String(row.mobileWhatsApp || "—")}
+            </span>
+          ),
+        },
+        {
+          key: "col-email",
+          header: "Email",
+          render: (row) => {
+            const email = String(row.email || "");
+            return (
+              <span className="text-xs" title={email || undefined}>
+                {email
+                  ? email.length > 28
+                    ? `${email.slice(0, 28)}…`
+                    : email
+                  : "—"}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-status",
+          header: "Status",
+          render: (row) => {
+            const id = String(row[idField] || "");
+            const value = String(row.vendorStatus || "Prospect");
+            return (
+              <select
+                className="admin-input !w-auto min-w-[7.5rem] !py-1 text-[11px]"
+                value={value}
+                disabled={statusSavingId === id}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  void onInlineFieldChange(row, "vendorStatus", e.target.value)
+                }
+              >
+                {vendorStatuses.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            );
+          },
         },
       );
       return cols;
@@ -761,6 +852,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     isEventBriefs,
     isChanges,
     isFeedback,
+    isVendors,
     statusSavingId,
     onInlineFieldChange,
   ]);
@@ -784,6 +876,12 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   function openEdit(row: Row) {
     setEditId(String(row[idField] || ""));
     setModalOpen(true);
+  }
+
+  function openDetail(row: Row) {
+    const id = String(row[idField] || "");
+    if (!id || !hasDetailPage(resourceKey)) return;
+    router.push(adminResourceHref(resourceKey, id));
   }
 
   function requestDelete(row: Row) {
@@ -818,6 +916,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         rows={rows}
         rowKey={(row) => String(row[idField] || row._id || "")}
         onRowOpen={openEdit}
+        onRowClick={hasDetailPage(resourceKey) ? openDetail : undefined}
         onRowDelete={requestDelete}
         loading={loading}
         page={page}

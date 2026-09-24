@@ -126,6 +126,7 @@ const RESOURCE_MAP: Record<ResourceKey, ResourceDef> = {
     idKey: "vendor",
     searchFields: ["vendorId", "businessName", "category", "vendorStatus"],
     labelField: "businessName",
+    createDefaults: { vendorStatus: "Prospect" },
   },
   "vendor-orders": {
     resource: "vendor-orders",
