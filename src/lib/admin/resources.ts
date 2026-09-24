@@ -125,7 +125,13 @@ const RESOURCE_MAP: Record<ResourceKey, ResourceDef> = {
     model: Venue as ResourceDef["model"],
     businessIdField: "venueId",
     idKey: "venue",
-    searchFields: ["venueId", "venueName", "areaCity"],
+    searchFields: [
+      "venueId",
+      "venueName",
+      "areaCity",
+      "venueManager",
+      "managerMobile",
+    ],
     labelField: "venueName",
   },
   inventory: {

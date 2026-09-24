@@ -11,6 +11,7 @@ import {
   taskPriorities,
   taskStatuses,
   vendorStatuses,
+  VENUE_SETTING,
 } from "@/models/enums";
 
 export type FieldDef = {
@@ -167,12 +168,25 @@ export const RESOURCE_FIELDS: Record<ResourceKey, FieldDef[]> = {
     { name: "status", label: "Status" },
   ],
   venues: [
-    { name: "venueName", label: "Venue name", required: true },
-    { name: "areaCity", label: "Area / city" },
+    { name: "venueName", label: "Name", required: true },
+    { name: "areaCity", label: "Area" },
     { name: "venueManager", label: "Manager" },
-    { name: "managerMobile", label: "Manager mobile" },
+    { name: "managerMobile", label: "Contact" },
     { name: "guestCapacity", label: "Capacity", type: "number" },
-    { name: "notes", label: "Notes", type: "textarea" },
+    { name: "addressMapLink", label: "Address / map link" },
+    { name: "setting", label: "Setting", type: "select", options: VENUE_SETTING },
+    { name: "indicativeRental", label: "Indicative rental", type: "number" },
+    { name: "securityDeposit", label: "Security deposit", type: "number" },
+    { name: "parkingAccessibility", label: "Parking / accessibility" },
+    {
+      name: "decorFlameRiggingRules",
+      label: "Decor / flame / rigging rules",
+      type: "textarea",
+    },
+    {
+      name: "emergencyContactFirstAid",
+      label: "Emergency contact / first aid",
+    },
   ],
   inventory: [
     { name: "itemAssetName", label: "Item name", required: true },

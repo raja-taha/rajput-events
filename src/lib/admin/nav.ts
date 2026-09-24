@@ -19,7 +19,6 @@ export const ADMIN_NAV: NavGroup[] = [
     items: [
       { label: "Customers", href: "/admin/customers", icon: "Users" },
       { label: "Enquiries", href: "/admin/enquiries", icon: "MessageSquare" },
-      { label: "Event Briefs", href: "/admin/event-briefs", icon: "FileText" },
       { label: "Quotes", href: "/admin/quotes", icon: "Receipt" },
       { label: "Services & Packages", href: "/admin/services", icon: "Package" },
     ],
@@ -28,9 +27,10 @@ export const ADMIN_NAV: NavGroup[] = [
     label: "Events",
     items: [
       { label: "Bookings / Events", href: "/admin/bookings", icon: "CalendarDays" },
-      { label: "Tasks / Run Sheet", href: "/admin/tasks", icon: "CheckSquare" },
+      { label: "Event Briefs", href: "/admin/event-briefs", icon: "FileText" },
       { label: "Change Orders", href: "/admin/changes", icon: "GitBranch" },
       { label: "Feedback & Consent", href: "/admin/feedback", icon: "Star" },
+      { label: "Tasks / Run Sheet", href: "/admin/tasks", icon: "CheckSquare" },
     ],
   },
   {

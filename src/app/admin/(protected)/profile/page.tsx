@@ -3,10 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminTheme } from "@/components/admin/AdminThemeProvider";
+import {
+  TABLE_PAGE_SIZE_OPTIONS,
+  useAdminPreferences,
+} from "@/components/admin/AdminPreferencesProvider";
 
 export default function AdminProfilePage() {
   const router = useRouter();
   const { theme, toggleTheme } = useAdminTheme();
+  const { tablePageSize, setTablePageSize } = useAdminPreferences();
   const [email, setEmail] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -39,12 +44,41 @@ export default function AdminProfilePage() {
             <dt className="text-[var(--admin-muted)]">Role</dt>
             <dd className="font-medium">admin</dd>
           </div>
-          <div className="flex justify-between gap-4">
+          <div className="flex justify-between gap-4 border-b border-[var(--admin-border)] pb-3">
             <dt className="text-[var(--admin-muted)]">Theme</dt>
             <dd>
-              <button type="button" className="admin-btn admin-btn-ghost" onClick={toggleTheme}>
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost"
+                onClick={toggleTheme}
+              >
                 {theme === "light" ? "Switch to dark" : "Switch to light"}
               </button>
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <dt className="text-[var(--admin-muted)]">Rows per page</dt>
+              <p className="mt-0.5 text-xs text-[var(--admin-muted)]">
+                How many table rows to show on each page
+              </p>
+            </div>
+            <dd>
+              <select
+                className="admin-input !w-auto min-w-[5.5rem]"
+                value={tablePageSize}
+                onChange={(e) =>
+                  setTablePageSize(
+                    Number(e.target.value) as (typeof TABLE_PAGE_SIZE_OPTIONS)[number],
+                  )
+                }
+              >
+                {TABLE_PAGE_SIZE_OPTIONS.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
             </dd>
           </div>
         </dl>

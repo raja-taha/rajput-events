@@ -12,6 +12,7 @@ import { RESOURCE_META, type ResourceKey } from "@/lib/admin/resource-config";
 import { RESOURCE_LABELS } from "@/lib/admin/resource-fields";
 import { customerStatuses, enquiryStages, quoteStatuses } from "@/models/enums";
 import { formatDate } from "@/lib/admin/dates";
+import { useAdminPreferences } from "./AdminPreferencesProvider";
 
 type Row = Record<string, unknown>;
 
@@ -24,13 +25,12 @@ const STATUS_FIELDS = [
   "approvalStatus",
 ] as const;
 
-const PAGE_SIZE = 10;
-
 export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) {
   const def = RESOURCE_META[resourceKey];
   const meta = RESOURCE_LABELS[resourceKey];
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { tablePageSize } = useAdminPreferences();
   const page = Math.max(1, Number(searchParams.get("page") || 1));
   const search = searchParams.get("search") || "";
   const editParam = searchParams.get("edit");
@@ -44,12 +44,14 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   const [editId, setEditId] = useState<string | null>(null);
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const openedFromQuery = useRef<string | null>(null);
+  const loadRequestId = useRef(0);
 
   const idField = def.businessIdField;
   const labelField = def.labelField;
   const isCustomers = resourceKey === "customers";
   const isEnquiries = resourceKey === "enquiries";
   const isQuotes = resourceKey === "quotes";
+  const isVenues = resourceKey === "venues";
 
   useEffect(() => {
     if (!newParam && !editParam) {
@@ -76,29 +78,43 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
   }, [newParam, editParam, searchParams, router, meta.adminPath]);
 
   const load = useCallback(async () => {
+    const requestId = ++loadRequestId.current;
     setLoading(true);
     try {
       const res = await fetchList<Row>(resourceKey, {
         page,
-        pageSize: PAGE_SIZE,
+        pageSize: tablePageSize,
         search,
         sort: `${idField}:asc`,
       });
+      if (requestId !== loadRequestId.current) return;
       setRows(res.data);
       setTotal(res.total);
       setTotalPages(res.totalPages);
     } catch {
+      if (requestId !== loadRequestId.current) return;
       setRows([]);
       setTotal(0);
       setTotalPages(1);
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestId.current) setLoading(false);
     }
-  }, [resourceKey, page, search, idField]);
+  }, [resourceKey, page, search, idField, tablePageSize]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  const prevPageSize = useRef(tablePageSize);
+  useEffect(() => {
+    if (prevPageSize.current === tablePageSize) return;
+    prevPageSize.current = tablePageSize;
+    if (page !== 1) {
+      const q = new URLSearchParams(searchParams.toString());
+      q.set("page", "1");
+      router.push(`/admin/${meta.adminPath}?${q.toString()}`);
+    }
+  }, [tablePageSize, page, searchParams, router, meta.adminPath]);
 
   const onInlineFieldChange = useCallback(
     async (row: Row, field: string, value: string) => {
@@ -351,6 +367,59 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       return cols;
     }
 
+    if (isVenues) {
+      cols.push(
+        {
+          key: "col-name",
+          header: "Name",
+          render: (row) => {
+            const text = String(row.venueName || "—");
+            return (
+              <span className="text-xs">
+                {text.length > 40 ? `${text.slice(0, 40)}…` : text}
+              </span>
+            );
+          },
+        },
+        {
+          key: "col-area",
+          header: "Area",
+          render: (row) => (
+            <span className="text-xs">{String(row.areaCity || "—")}</span>
+          ),
+        },
+        {
+          key: "col-manager",
+          header: "Manager",
+          render: (row) => (
+            <span className="text-xs">{String(row.venueManager || "—")}</span>
+          ),
+        },
+        {
+          key: "col-contact",
+          header: "Contact",
+          render: (row) => (
+            <span className="text-xs tabular-nums">
+              {String(row.managerMobile || "—")}
+            </span>
+          ),
+        },
+        {
+          key: "col-capacity",
+          header: "Capacity",
+          render: (row) => {
+            const n = row.guestCapacity;
+            return (
+              <span className="text-xs tabular-nums">
+                {n == null || n === "" ? "—" : String(n)}
+              </span>
+            );
+          },
+        },
+      );
+      return cols;
+    }
+
     if (labelField && labelField !== idField) {
       cols.push({
         key: "col-label",
@@ -367,9 +436,9 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
       });
     }
 
-    const statusField =
-      STATUS_FIELDS.find((f) => rows.some((r) => r[f] != null)) ||
-      STATUS_FIELDS.find((f) => f === "stage" || f === "status");
+    const statusField = STATUS_FIELDS.find((f) =>
+      rows.some((r) => r[f] != null && r[f] !== ""),
+    );
 
     if (statusField) {
       cols.push({
@@ -387,6 +456,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
     isCustomers,
     isEnquiries,
     isQuotes,
+    isVenues,
     statusSavingId,
     onInlineFieldChange,
   ]);
@@ -427,7 +497,7 @@ export function EntityListClient({ resourceKey }: { resourceKey: ResourceKey }) 
         onRowOpen={openEdit}
         loading={loading}
         page={page}
-        pageSize={PAGE_SIZE}
+        pageSize={tablePageSize}
         total={total}
         totalPages={totalPages}
         search={search}

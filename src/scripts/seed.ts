@@ -102,6 +102,16 @@ async function seed() {
     "Build vendor shortlist and check two options for critical services",
     "Cost and define the first weekend package",
     "Create event folders and restricted document access",
+    "Draft standard enquiry response and follow-up checklist",
+    "Photograph sample décor setups for the service catalogue",
+    "Confirm backup generator and power rental contacts",
+    "Agree internal roles for day-of run sheet ownership",
+    "Prepare weather contingency notes for outdoor setups",
+    "Test WhatsApp Business labels for enquiry stages",
+    "Collect sample venue floor plans for common local halls",
+    "Review insurance options for hired equipment on site",
+    "Create a simple post-event feedback and referral script",
+    "Schedule weekly pipeline review for quotes and advances",
   ];
 
   for (let i = 0; i < businessTasks.length; i += 1) {
@@ -116,7 +126,7 @@ async function seed() {
       priority: "Normal",
     });
   }
-  await ensureCounterAtLeast("task", 8);
+  await ensureCounterAtLeast("task", 18);
 
   const templates = [
     ["TPL-001", "Qualification", "Collect the customer brief, date, guest count, budget and decision maker"],

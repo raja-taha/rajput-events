@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AdminThemeProvider } from "./AdminThemeProvider";
+import { AdminPreferencesProvider } from "./AdminPreferencesProvider";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminTopbar } from "./AdminTopbar";
 import { AdminToaster } from "./AdminToaster";
@@ -64,30 +65,32 @@ export function AdminShell({
 
   return (
     <AdminThemeProvider>
-      <div className="admin-root flex h-dvh flex-col overflow-hidden">
-        <AdminTopbar
-          title={title}
-          subtitle={subtitle}
-          email={email}
-          sidebarOpen={sidebarOpen}
-          onMenuClick={toggleSidebar}
-        />
-        <div className="relative flex min-h-0 flex-1 overflow-x-hidden">
-          <AdminSidebar
-            open={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-            onNavigate={() => {
-              if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                setSidebarOpen(false);
-              }
-            }}
+      <AdminPreferencesProvider>
+        <div className="admin-root flex h-dvh flex-col overflow-hidden">
+          <AdminTopbar
+            title={title}
+            subtitle={subtitle}
+            email={email}
+            sidebarOpen={sidebarOpen}
+            onMenuClick={toggleSidebar}
           />
-          <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 lg:p-4">
-            {children}
-          </main>
+          <div className="relative flex min-h-0 flex-1 overflow-x-hidden">
+            <AdminSidebar
+              open={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              onNavigate={() => {
+                if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  setSidebarOpen(false);
+                }
+              }}
+            />
+            <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 lg:p-4">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-      <AdminToaster />
+        <AdminToaster />
+      </AdminPreferencesProvider>
     </AdminThemeProvider>
   );
 }
