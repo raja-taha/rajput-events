@@ -27,7 +27,7 @@ export function Hero() {
         <div className="animate-logo-settle mb-8 md:mb-10">
           <Image
             src="/images/logo.png"
-            alt="Rajput Events emblem"
+            alt="Rajput Events — wedding and event planners in Rawalpindi and Islamabad"
             width={280}
             height={280}
             priority
