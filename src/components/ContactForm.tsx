@@ -113,7 +113,7 @@ export function ContactForm() {
                   rel="noopener noreferrer"
                   className="mt-1 inline-block transition-colors hover:text-gold"
                 >
-                  Chat on WhatsApp
+                  {SITE_CONTACT.phoneDisplay}
                 </a>
               </div>
             </div>
