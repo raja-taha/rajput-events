@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { EVENT_TYPE } from "@/models/enums";
+import { SITE_CONTACT } from "@/lib/site";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -72,30 +74,47 @@ export function ContactForm() {
                   EMAIL
                 </p>
                 <a
-                  href="mailto:rajputevents04@gmail.com"
+                  href={SITE_CONTACT.emailHref}
                   className="mt-1 inline-block transition-colors hover:text-gold"
                 >
-                  rajputevents04@gmail.com
+                  {SITE_CONTACT.email}
                 </a>
               </div>
               <div>
                 <p className="font-[family-name:var(--font-display)] text-xs tracking-[0.18em] text-gold">
                   SOCIAL
                 </p>
-                <a
-                  href="https://instagram.com/rajputevents"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-block transition-colors hover:text-gold"
-                >
-                  @rajputevents
-                </a>
+                <div className="mt-1 flex flex-col gap-1">
+                  <a
+                    href={SITE_CONTACT.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block transition-colors hover:text-gold"
+                  >
+                    Instagram {SITE_CONTACT.instagramHandle}
+                  </a>
+                  <a
+                    href={SITE_CONTACT.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block transition-colors hover:text-gold"
+                  >
+                    Facebook
+                  </a>
+                </div>
               </div>
               <div>
                 <p className="font-[family-name:var(--font-display)] text-xs tracking-[0.18em] text-gold">
                   WHATSAPP
                 </p>
-                <p className="mt-1">Rajput Events | Planning &amp; Management</p>
+                <a
+                  href={SITE_CONTACT.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-block transition-colors hover:text-gold"
+                >
+                  Chat on WhatsApp
+                </a>
               </div>
             </div>
           </div>
@@ -152,15 +171,16 @@ export function ContactForm() {
                   name="eventType"
                   required
                   defaultValue=""
-                  className="input-field input-field-dark appearance-none"
+                  className="input-field input-field-dark"
                 >
                   <option value="" disabled>
                     Select type
                   </option>
-                  <option value="Wedding">Wedding</option>
-                  <option value="Corporate">Corporate</option>
-                  <option value="Private Celebration">Private Celebration</option>
-                  <option value="Other">Other</option>
+                  {EVENT_TYPE.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="block sm:col-span-2">

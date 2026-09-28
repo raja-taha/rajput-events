@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SITE_CONTACT, SITE_URL } from "@/lib/site";
 
 export function Footer() {
   return (
@@ -73,33 +74,48 @@ export function Footer() {
           <ul className="mt-4 space-y-3 text-sm text-ivory/75">
             <li>
               <a
-                href="mailto:rajputevents04@gmail.com"
+                href={SITE_CONTACT.emailHref}
                 className="hover:text-gold transition-colors"
               >
-                rajputevents04@gmail.com
+                {SITE_CONTACT.email}
               </a>
             </li>
             <li>
               <a
-                href="https://instagram.com/rajputevents"
+                href={SITE_CONTACT.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gold transition-colors"
               >
-                Instagram @rajputevents
+                Instagram {SITE_CONTACT.instagramHandle}
               </a>
             </li>
             <li>
-              <span className="text-ivory/55">
-                WhatsApp: Rajput Events | Planning &amp; Management
-              </span>
+              <a
+                href={SITE_CONTACT.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gold transition-colors"
+              >
+                Facebook
+              </a>
             </li>
             <li>
               <a
-                href="https://rajputevents.com"
+                href={SITE_CONTACT.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-gold transition-colors"
               >
-                rajputevents.com
+                {SITE_CONTACT.whatsappLabel}
+              </a>
+            </li>
+            <li>
+              <a
+                href={SITE_URL}
+                className="hover:text-gold transition-colors"
+              >
+                {SITE_CONTACT.websiteLabel}
               </a>
             </li>
           </ul>

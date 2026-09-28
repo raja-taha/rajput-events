@@ -8,7 +8,7 @@ import { writeAudit } from "@/lib/admin/audit";
 const DEFAULTS: Record<string, string> = {
   businessName: "Rajput Events",
   businessEmail: "rajputevents04@gmail.com",
-  businessWhatsApp: "",
+  businessWhatsApp: "+92 319 3627089",
   businessAddress: "",
   serviceArea: "Rawalpindi / Islamabad",
   bankAccountTitle: "",

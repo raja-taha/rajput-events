@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Rajput Events",
     description: "Every Occasion, Beautifully Orchestrated.",
-    url: "https://rajputevents.com",
+    url: "https://rajput-events.vercel.app",
     siteName: "Rajput Events",
     type: "website",
     images: [
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: "/images/logo.png",
   },
-  metadataBase: new URL("https://rajputevents.com"),
+  metadataBase: new URL("https://rajput-events.vercel.app"),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
