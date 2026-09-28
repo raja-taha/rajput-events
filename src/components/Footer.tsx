@@ -8,7 +8,7 @@ export function Footer() {
         <div>
           <div className="mb-5 flex items-center gap-3">
             <Image
-              src="/images/logo.jpg"
+              src="/images/logo.png"
               alt="Rajput Events"
               width={56}
               height={56}

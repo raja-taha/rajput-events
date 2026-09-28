@@ -44,7 +44,7 @@ export function Header() {
           onClick={() => setOpen(false)}
         >
           <Image
-            src="/images/logo.jpg"
+            src="/images/logo.png"
             alt="Rajput Events"
             width={52}
             height={52}

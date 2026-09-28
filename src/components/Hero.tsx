@@ -26,7 +26,7 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-5 pb-16 pt-28 text-center md:px-8 md:pt-32">
         <div className="animate-logo-settle mb-8 md:mb-10">
           <Image
-            src="/images/logo.jpg"
+            src="/images/logo.png"
             alt="Rajput Events emblem"
             width={280}
             height={280}

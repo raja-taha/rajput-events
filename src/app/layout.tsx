@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/logo.jpg",
+        url: "/images/logo.png",
         width: 1024,
         height: 1024,
         alt: "Rajput Events logo",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: "/images/logo.jpg",
+    apple: "/images/logo.png",
   },
   metadataBase: new URL("https://rajputevents.com"),
 };
